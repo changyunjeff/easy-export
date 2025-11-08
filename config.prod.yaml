@@ -1,0 +1,9 @@
+app:
+  title: Easy Export
+  port: 8000
+  host: localhost
+  description: Easy Export
+  version: 1.0.0
+  contact:
+    email: changyunjeff@outlook.com
+    name: Chang Yun jeff

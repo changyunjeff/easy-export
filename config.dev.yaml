@@ -7,3 +7,10 @@ app:
   contact:
     email: changyunjeff@outlook.com
     name: Chang Yun jeff
+
+logging:
+  level: DEBUG    # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  console_enabled: true
+  log_path: "logs/dev.log"
+  access_log_path: "logs/access.log"
+  error_log_path: "logs/error.log"

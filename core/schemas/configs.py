@@ -44,3 +44,16 @@ class CORSConfig(BaseModel):
 class APIConfig(BaseModel):
     prefix: str = Field(default="/api/v1", description="API route prefix")
     cors: Optional[CORSConfig] = Field(default=None, description="CORS configuration")
+
+
+class SMTPConfig(BaseModel):
+    host: str = Field(default="smtp.gmail.com", description="SMTP server host")
+    port: int = Field(default=587, description="SMTP server port")
+    user: str = Field(default="", description="SMTP username/email")
+    tls: bool = Field(default=True, description="Enable TLS encryption")
+    template_dir: Optional[str] = Field(default=None, description="Email template directory path")
+
+
+class EmailConfig(BaseModel):
+    enabled: bool = Field(default=False, description="Enable email service")
+    smtp: Optional[SMTPConfig] = Field(default=None, description="SMTP configuration")

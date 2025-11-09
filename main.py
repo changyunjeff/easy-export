@@ -63,6 +63,33 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.warning(f"Failed to initialize in-memory storage: {e}")
 
+    # 根据配置初始化 Email 服务（如果启用）
+    email_config = getattr(config, "email", None)
+    if email_config and getattr(email_config, "enabled", False):
+        try:
+            from core.email import init_email, get_email_client
+            smtp_config = getattr(email_config, "smtp", None)
+            if smtp_config:
+                template_dir = getattr(smtp_config, "template_dir", None)
+                success = init_email(
+                    host=smtp_config.host,
+                    port=smtp_config.port,
+                    user=smtp_config.user,
+                    password=os.getenv("SMTP_PASSWORD"),
+                    tls=smtp_config.tls,
+                )
+                if success:
+                    # 初始化邮件客户端（用于模板支持）
+                    if template_dir:
+                        get_email_client(template_dir=template_dir)
+                    logger.info("Email service initialized successfully")
+                else:
+                    logger.warning("Email service initialization failed")
+            else:
+                logger.warning("Email service enabled but SMTP config is missing")
+        except Exception as e:
+            logger.warning(f"Failed to initialize Email service: {e}")
+
     contact_payload = None
     if getattr(config.app, "contact", None):
         if isinstance(config.app.contact, str):

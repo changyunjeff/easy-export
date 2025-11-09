@@ -38,3 +38,23 @@ api:
     allow_credentials: true
     expose_headers: []
     max_age: 7200
+
+auth:
+  enabled: true
+  jwt:
+    secret_key: "your-256-bit-secret"
+    algorithm: "HS256"
+    access_token_expire: "30m"
+    refresh_token_expire: "7d"
+  password_reset:
+    enabled: true
+    token_expire: "15m"
+
+email:
+  enabled: true
+  smtp:
+    host: "smtp.qq.com"
+    port: 587
+    user: "1405766437@qq.com"
+    tls: true
+    template_dir: "static/email_template"

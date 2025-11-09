@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ subject | default('邮件测试') }}</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, sans-serif !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <!-- 外层容器 -->
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f4;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <!-- 主内容容器 -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                    <!-- 头部渐变区域 -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">
+                                {{ title | default('欢迎使用') }}
+                            </h1>
+                            {% if subtitle %}
+                            <p style="margin: 10px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px; font-weight: 300;">
+                                {{ subtitle }}
+                            </p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                    <!-- 主要内容区域 -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <!-- 问候语 -->
+                            {% if name %}
+                            <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
+                                亲爱的 <strong style="color: #667eea;">{{ name }}</strong>，
+                            </p>
+                            {% endif %}
+                            
+                            <!-- 正文内容 -->
+                            <div style="color: #555555; font-size: 15px; line-height: 1.8; margin-bottom: 30px;">
+                                {% if content %}
+                                    {{ content | safe }}
+                                {% else %}
+                                    <p style="margin: 0 0 15px;">
+                                        这是一封测试邮件，用于验证邮件模板的渲染效果。
+                                    </p>
+                                    <p style="margin: 0 0 15px;">
+                                        模板支持 Jinja2 语法，可以动态插入变量和内容。
+                                    </p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- 信息卡片 -->
+                            {% if info_items %}
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 30px 0; background-color: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                                {% for item in info_items %}
+                                <tr>
+                                    <td style="padding: 15px 20px; border-bottom: 1px solid #e9ecef;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="color: #667eea; font-weight: 600; font-size: 14px; width: 100px;">
+                                                    {{ item.label }}:
+                                                </td>
+                                                <td style="color: #333333; font-size: 14px;">
+                                                    {{ item.value }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                            {% endif %}
+                            
+                            <!-- 按钮区域 -->
+                            {% if button_text and button_url %}
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center" style="padding: 20px 0;">
+                                        <a href="{{ button_url }}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;">
+                                            {{ button_text }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            {% endif %}
+                            
+                            <!-- 分隔线 -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding: 30px 0 20px; border-top: 1px solid #e9ecef;">
+                                        <p style="margin: 0; color: #999999; font-size: 13px; line-height: 1.6; text-align: center;">
+                                            {% if footer_text %}
+                                                {{ footer_text }}
+                                            {% else %}
+                                                此邮件由系统自动发送，请勿直接回复。
+                                            {% endif %}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- 底部区域 -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 25px 40px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="margin: 0 0 10px; color: #666666; font-size: 13px;">
+                                {% if company_name %}
+                                    <strong style="color: #333333;">{{ company_name }}</strong>
+                                {% else %}
+                                    <strong style="color: #333333;">Easy Export</strong>
+                                {% endif %}
+                            </p>
+                            {% if company_address %}
+                            <p style="margin: 0; color: #999999; font-size: 12px;">
+                                {{ company_address }}
+                            </p>
+                            {% endif %}
+                            {% if contact_email %}
+                            <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
+                                联系邮箱: <a href="mailto:{{ contact_email }}" style="color: #667eea; text-decoration: none;">{{ contact_email }}</a>
+                            </p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- 页脚说明 -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; margin-top: 20px;">
+                    <tr>
+                        <td align="center" style="padding: 20px; color: #999999; font-size: 12px;">
+                            <p style="margin: 0;">
+                                © {{ current_year | default('2024') }} All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+

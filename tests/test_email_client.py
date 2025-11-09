@@ -56,12 +56,12 @@ from core.email import (
     is_email_enabled,
 )
 from core.config import load_config
-from dotenv import load_dotenv
 
-load_dotenv()
-
-smtp_pwd = os.getenv("SMTP_PWD")
-print(f"SMTP_PWD: {smtp_pwd}")
+smtp_pwd = os.getenv("SMTP_PASSWORD") or os.getenv("SMTP_PWD")  # 兼容两种命名
+if smtp_pwd:
+    print(f"SMTP_PASSWORD loaded: {'*' * min(len(smtp_pwd), 10)} (length: {len(smtp_pwd)})")
+else:
+    print("WARNING: SMTP_PASSWORD not found in environment variables!")
 
 
 class TestEmailClient:

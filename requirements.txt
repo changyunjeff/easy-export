@@ -9,3 +9,7 @@ PyJWT==2.10.1
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.5.0
 python-multipart==0.0.20
+docxtpl==0.20.1
+python-docx==1.2.0
+weasyprint==66.0
+docx2pdf==0.1.8

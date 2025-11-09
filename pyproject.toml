@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "easyexp"
+version = "0.1.1"
+description = "Easy Render & Export"
+readme = "README.md"
+requires-python = ">=3.9,<3.13"
+license = {text = "MIT"}
+dependencies = [
+    "fastapi==0.121.1",
+    "PyYaml==6.0.3",
+    "pydantic_yaml==1.4.0",
+    "email-validator==2.3.0",
+    "dotenv==0.9.9",
+    "redis==7.0.1",
+    "jinja2==3.1.6",
+]
+
+[project.scripts]
+compelog = "script.compress_logs:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "script*"]
+
+[tool.setuptools.package-data]
+"*" = ["static/**/*"]
+
+[tool.setuptools]
+py-modules = ["main"]

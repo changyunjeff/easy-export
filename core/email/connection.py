@@ -49,17 +49,31 @@ class EmailClient:
             是否连接成功
         """
         try:
+            # 检查密码是否为空
+            if not self.password:
+                logger.error("SMTP password is empty or not set. Please set SMTP_PASSWORD environment variable.")
+                return False
+            
+            logger.debug(f"Connecting to SMTP server {self.host}:{self.port} with TLS={self.tls}")
+            
             if self.tls:
                 self._smtp = SMTP(self.host, self.port)
                 self._smtp.starttls()
             else:
                 self._smtp = SMTP_SSL(self.host, self.port)
             
+            logger.debug(f"Attempting to login with user: {self.user}")
             self._smtp.login(self.user, self.password)
             logger.info(f"Email client connected to {self.host}:{self.port}")
             return True
         except Exception as e:
-            logger.error(f"Failed to connect to email server: {e}")
+            error_msg = str(e)
+            logger.error(f"Failed to connect to email server: {error_msg}")
+            # 提供更详细的错误信息
+            if "password" in error_msg.lower() or "authentication" in error_msg.lower():
+                logger.error("Authentication failed. Please check your SMTP_PASSWORD.")
+            elif "connection" in error_msg.lower() or "refused" in error_msg.lower():
+                logger.error(f"Connection refused. Please check SMTP host ({self.host}) and port ({self.port}).")
             self._smtp = None
             return False
     

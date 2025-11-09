@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing import Optional
 
-from .configs import AppConfig, LoggingConfig, RedisConfig, APIConfig, CORSConfig
+from .configs import AppConfig, LoggingConfig, RedisConfig, APIConfig, CORSConfig, EmailConfig, SMTPConfig
 
 
 class GlobalConfig(BaseModel):
@@ -11,5 +11,6 @@ class GlobalConfig(BaseModel):
     logging: Optional[LoggingConfig] = None
     redis: Optional[RedisConfig] = None
     api: Optional[APIConfig] = None
+    email: Optional[EmailConfig] = None
 
-__all__ = ['GlobalConfig', 'AppConfig', 'LoggingConfig', 'RedisConfig', 'APIConfig', 'CORSConfig']
+__all__ = ['GlobalConfig', 'AppConfig', 'LoggingConfig', 'RedisConfig', 'APIConfig', 'CORSConfig', 'EmailConfig', 'SMTPConfig']

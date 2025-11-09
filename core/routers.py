@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.router import router_registry, RouterType
-from core.router import PrefixValidator, AdminRouteValidator
+from core.router import PrefixValidator, AdminRouteValidator, PrivateRouteValidator
 from core.config import get_config
 
 
@@ -39,6 +39,12 @@ def setup_routers(app: FastAPI):
         AdminRouteValidator()
     )
     
+    # 为私有路由添加认证验证
+    router_registry.register_validator(
+        RouterType.PRIVATE,
+        PrivateRouteValidator()
+    )
+
     # 注册所有路由
     stats = router_registry.register_all(app)
     

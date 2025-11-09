@@ -10,3 +10,11 @@ class AppConfig(BaseModel):
     version: Optional[str] = Field(default=None, description="version of the app")
     contact: Optional[dict] = Field(default=None, description="contact of the app")
     mode: Optional[str] = Field(default="dev", description="mode of the app")
+
+
+class LoggingConfig(BaseModel):
+    level: str = Field(default="INFO", description="Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL")
+    console_enabled: bool = Field(default=True, description="Enable console logging")
+    log_path: Optional[str] = Field(default=None, description="General application log file path")
+    access_log_path: Optional[str] = Field(default=None, description="Access log file path")
+    error_log_path: Optional[str] = Field(default=None, description="Error log file path")

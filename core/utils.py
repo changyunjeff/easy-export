@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 
-def is_debug(mode: str|None = None):
+def is_debug(mode: str | None = None):
     """
     If the mode is set to development, return True; otherwise, return False.
     """

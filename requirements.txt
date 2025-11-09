@@ -1,6 +1,6 @@
-fastapi==0.121.0
+fastapi==0.121.1
 PyYaml==6.0.3
 pydantic_yaml==1.4.0
-uvicorn==0.38.0
 email-validator==2.3.0
 dotenv==0.9.9
+redis==7.0.1

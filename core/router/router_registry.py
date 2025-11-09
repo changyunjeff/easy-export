@@ -9,21 +9,35 @@ from threading import Lock
 from fastapi import APIRouter, FastAPI
 
 
-class RouterType(str, Enum):
-    """路由类型枚举"""
-    PUBLIC = "public"          # 公开路由，无需认证
-    PRIVATE = "private"        # 私有路由，需要认证
-    ADMIN = "admin"            # 管理员路由，需要管理员权限
-    INTERNAL = "internal"      # 内部路由，仅内部服务调用
-    API = "api"                # API路由
-    WEBHOOK = "webhook"        # Webhook路由
+class RouterType(int, Enum):
+    """路由类型枚举（支持位标志组合）"""
+    API = 0x0001  # API路由
+    PUBLIC = 0x0002          # 公开路由，无需认证
+    PRIVATE = 0x0004        # 私有路由，需要认证
+    ADMIN = 0x0008            # 管理员路由，需要管理员权限
+    INTERNAL = 0x000f      # 内部路由，仅内部服务调用
+    WEBHOOK = 0x0010        # Webhook路由
+    
+    @classmethod
+    def has_type(cls, router_type: int, target_type: 'RouterType') -> bool:
+        """
+        检查路由类型是否包含目标类型（支持位标志）
+        
+        Args:
+            router_type: 路由类型（可能是组合值）
+            target_type: 目标类型
+            
+        Returns:
+            bool: 如果 router_type 包含 target_type 则返回 True
+        """
+        return bool(router_type & target_type.value)
 
 
 @dataclass
 class RouterMetadata:
     """路由元数据"""
     router: APIRouter
-    router_type: RouterType
+    router_type: int  # 路由类型（支持位标志组合，如 RouterType.API | RouterType.PUBLIC）
     priority: int = 100  # 优先级，数字越小优先级越高
     name: Optional[str] = None
     description: Optional[str] = None
@@ -75,13 +89,13 @@ class RouterRegistry:
             return
         
         self._routers: List[RouterMetadata] = []
-        self._validators: Dict[RouterType, List[RouterValidator]] = {}
-        self._type_handlers: Dict[RouterType, Callable[[RouterMetadata, FastAPI], None]] = {}
+        self._validators: Dict[int, List[RouterValidator]] = {}  # 使用 int 作为键，支持位标志
+        self._type_handlers: Dict[int, Callable[[RouterMetadata, FastAPI], None]] = {}  # 使用 int 作为键
         self._registered_count = 0
         self._skipped_count = 0
         self._failed_count = 0
         # Idempotency tracking
-        self._validator_class_names: Dict[RouterType, set[str]] = {}
+        self._validator_class_names: Dict[int, set[str]] = {}  # 使用 int 作为键
         self._added_router_keys: set[str] = set()
         self._added_router_ids: set[int] = set()
         self._initialized = True
@@ -95,29 +109,30 @@ class RouterRegistry:
         default_handler = lambda metadata, app: app.include_router(metadata.router)
         
         for router_type in RouterType:
-            self._type_handlers[router_type] = default_handler
+            self._type_handlers[router_type.value] = default_handler
     
     def register_validator(self, router_type: RouterType, validator: RouterValidator):
         """
         为特定路由类型注册验证器
         
         Args:
-            router_type: 路由类型
+            router_type: 路由类型（单个类型，验证器会应用到包含该类型的所有路由）
             validator: 验证器实例
         """
-        if router_type not in self._validators:
-            self._validators[router_type] = []
-        if router_type not in self._validator_class_names:
-            self._validator_class_names[router_type] = set()
+        type_value = router_type.value if isinstance(router_type, RouterType) else router_type
+        if type_value not in self._validators:
+            self._validators[type_value] = []
+        if type_value not in self._validator_class_names:
+            self._validator_class_names[type_value] = set()
 
         class_name = validator.__class__.__name__
-        if class_name in self._validator_class_names[router_type]:
-            print(f"⏭️  验证器已存在，跳过: {router_type.value} -> {class_name}")
+        if class_name in self._validator_class_names[type_value]:
+            print(f"⏭️  验证器已存在，跳过: {type_value} -> {class_name}")
             return
 
-        self._validators[router_type].append(validator)
-        self._validator_class_names[router_type].add(class_name)
-        print(f"✅ 注册验证器: {router_type.value} -> {class_name}")
+        self._validators[type_value].append(validator)
+        self._validator_class_names[type_value].add(class_name)
+        print(f"✅ 注册验证器: {type_value} -> {class_name}")
     
     def register_type_handler(
         self, 
@@ -128,16 +143,17 @@ class RouterRegistry:
         为特定路由类型注册处理器
         
         Args:
-            router_type: 路由类型
+            router_type: 路由类型（单个类型，处理器会应用到包含该类型的所有路由）
             handler: 处理器函数，接收 (metadata, app) 参数
         """
-        self._type_handlers[router_type] = handler
-        print(f"✅ 注册类型处理器: {router_type.value} -> {handler.__name__}")
+        type_value = router_type.value if isinstance(router_type, RouterType) else router_type
+        self._type_handlers[type_value] = handler
+        print(f"✅ 注册类型处理器: {type_value} -> {handler.__name__}")
     
     def add_router(
         self,
         router: APIRouter,
-        router_type: RouterType = RouterType.PUBLIC,
+        router_type: int = RouterType.PUBLIC,  # 支持位标志组合（RouterType 继承自 int）
         priority: int = 100,
         name: Optional[str] = None,
         description: Optional[str] = None,
@@ -167,9 +183,12 @@ class RouterRegistry:
             print(f"⏭️  重复路由，跳过添加: {dedupe_key}")
             return False
 
+        # 确保 router_type 是 int 值（支持位标志组合）
+        router_type_value = router_type.value if isinstance(router_type, RouterType) else int(router_type)
+
         router_metadata = RouterMetadata(
             router=router,
-            router_type=router_type,
+            router_type=router_type_value,
             priority=priority,
             name=name or router.prefix or "unnamed",
             description=description,
@@ -180,7 +199,10 @@ class RouterRegistry:
         self._added_router_ids.add(dedupe_id)
         self._added_router_keys.add(dedupe_key)
         self._routers.append(router_metadata)
-        print(f"📝 路由已添加到注册队列: {router_metadata.name} (类型: {router_type.value}, 优先级: {priority})")
+        # 格式化类型显示（显示所有包含的类型）
+        type_names = [t.name for t in RouterType if RouterType.has_type(router_type_value, t)]
+        type_display = "|".join(type_names) if type_names else str(router_type_value)
+        print(f"📝 路由已添加到注册队列: {router_metadata.name} (类型: {type_display}, 优先级: {priority})")
         return True
     
     def _validate_router(self, metadata: RouterMetadata) -> Tuple[bool, Optional[str]]:
@@ -197,11 +219,14 @@ class RouterRegistry:
         if not metadata.enabled:
             return False, "路由已禁用"
         
-        # 获取该类型的验证器
-        validators = self._validators.get(metadata.router_type, [])
+        # 获取所有匹配的验证器（检查路由类型是否包含已注册的验证器类型）
+        all_validators = []
+        for validator_type, validators in self._validators.items():
+            if RouterType.has_type(metadata.router_type, RouterType(validator_type)):
+                all_validators.extend(validators)
         
-        # 执行所有验证器
-        for validator in validators:
+        # 执行所有匹配的验证器
+        for validator in all_validators:
             is_valid, error_msg = validator.validate(metadata)
             if not is_valid:
                 return False, error_msg
@@ -226,16 +251,30 @@ class RouterRegistry:
             self._failed_count += 1
             return False
         
-        # 获取类型处理器
-        handler = self._type_handlers.get(metadata.router_type)
+        # 获取类型处理器（按优先级查找：优先使用最具体的类型处理器）
+        handler = None
+        # 按优先级顺序查找处理器（从最具体的类型开始）
+        priority_order = [RouterType.ADMIN, RouterType.PRIVATE, RouterType.API, RouterType.PUBLIC, RouterType.WEBHOOK, RouterType.INTERNAL]
+        for router_type in priority_order:
+            if RouterType.has_type(metadata.router_type, router_type):
+                handler = self._type_handlers.get(router_type.value)
+                if handler:
+                    break
+        
+        # 如果没找到，使用默认处理器
         if handler is None:
-            print(f"⚠️  未找到类型处理器: {metadata.router_type.value}，使用默认处理器")
-            handler = self._type_handlers.get(RouterType.PUBLIC)
+            default_handler = lambda metadata, app: app.include_router(metadata.router)
+            handler = default_handler
+            type_names = [t.name for t in RouterType if RouterType.has_type(metadata.router_type, t)]
+            type_display = "|".join(type_names) if type_names else str(metadata.router_type)
+            print(f"⚠️  未找到类型处理器: {type_display}，使用默认处理器")
         
         try:
             # 执行类型特定的注册逻辑
             handler(metadata, app)
-            print(f"✅ 路由注册成功: {metadata.name} (类型: {metadata.router_type.value}, 优先级: {metadata.priority})")
+            type_names = [t.name for t in RouterType if RouterType.has_type(metadata.router_type, t)]
+            type_display = "|".join(type_names) if type_names else str(metadata.router_type)
+            print(f"✅ 路由注册成功: {metadata.name} (类型: {type_display}, 优先级: {metadata.priority})")
             self._registered_count += 1
             return True
         except Exception as e:
@@ -302,15 +341,18 @@ class RouterRegistry:
     
     def get_statistics(self) -> Dict[str, Any]:
         """获取注册器统计信息"""
+        # 统计每个类型的路由数量（支持位标志）
+        by_type = {}
+        for router_type in RouterType:
+            count = sum(1 for r in self._routers if RouterType.has_type(r.router_type, router_type))
+            by_type[router_type.value] = count
+        
         return {
             "total_routers": len(self._routers),
             "registered": self._registered_count,
             "skipped": self._skipped_count,
             "failed": self._failed_count,
-            "by_type": {
-                router_type.value: sum(1 for r in self._routers if r.router_type == router_type)
-                for router_type in RouterType
-            }
+            "by_type": by_type
         }
 
 

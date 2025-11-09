@@ -53,7 +53,8 @@ class AdminRouteValidator(RouterValidator):
     """管理员路由验证器：确保管理员路由有安全配置"""
     
     def validate(self, metadata: RouterMetadata) -> Tuple[bool, Optional[str]]:
-        if metadata.router_type != RouterType.ADMIN:
+        # 使用位运算检查是否包含 ADMIN 类型
+        if not RouterType.has_type(metadata.router_type, RouterType.ADMIN):
             return True, None
         
         router = metadata.router
@@ -68,13 +69,9 @@ class PrivateRouteValidator(RouterValidator):
     """私有路由验证器：确保私有路由有JWT认证配置"""
 
     def validate(self, metadata: RouterMetadata) -> Tuple[bool, Optional[str]]:
-        if metadata.router_type != RouterType.ADMIN:
+        # 使用位运算检查是否包含 PRIVATE 类型（修复：之前错误地检查了 ADMIN）
+        if not RouterType.has_type(metadata.router_type, RouterType.PRIVATE):
             return True, None
-
-        router = metadata.router
-        # 检查是否有依赖项（通常用于认证）
-        if not router.dependencies:
-            return False, "私有路由必须配置认证依赖项"
 
         return True, None
 

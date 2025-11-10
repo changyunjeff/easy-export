@@ -90,6 +90,18 @@ class MemoryStore(BaseStore):
                 return self._strings[key][0]
             return None
     
+    def incr(self, key: str, amount: int = 1) -> int:
+        """增加键的值（原子操作）"""
+        with self._lock:
+            self._cleanup_expired(key)
+            current = self._strings.get(key, (0, None))[0]
+            try:
+                new_value = int(current) + amount
+            except (ValueError, TypeError):
+                new_value = amount
+            self._strings[key] = (new_value, None)
+            return new_value
+    
     def delete(self, *keys: str) -> int:
         """删除一个或多个键"""
         with self._lock:

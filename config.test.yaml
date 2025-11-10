@@ -61,18 +61,22 @@ email:
 
 rate_limit:
   enabled: true
-  requests_per_minute: 60    # 每分钟最大请求数
-  requests_per_hour: 1000    # 每小时最大请求数
-  requests_per_day: 10000   # 每天最大请求数
-  burst_size: 10             # 令牌桶突发大小
-  key_prefix: "rate_limit"   # Redis键前缀
+  requests_per_minute: 2    # 极端测试：每分钟仅允许2个请求（用于测试限流）
+  requests_per_hour: 5      # 极端测试：每小时仅允许5个请求
+  requests_per_day: 10      # 极端测试：每天仅允许10个请求
+  burst_size: 1             # 极端测试：令牌桶突发大小为1
+  key_prefix: "test_rate_limit"   # Redis键前缀（测试专用）
 
 ddos_protection:
   enabled: true
-  max_requests_per_second: 10   # 每秒最大请求数
-  max_requests_per_minute: 100   # 每分钟最大请求数
-  block_duration: 3600          # 超过阈值后封禁时长（秒）
-  whitelist_ips: []             # IP白名单
-  blacklist_ips: []             # IP黑名单
-  key_prefix: "ddos_protection" # Redis键前缀
+  max_requests_per_second: 1   # 极端测试：每秒仅允许1个请求（用于测试DDoS防护）
+  max_requests_per_minute: 3   # 极端测试：每分钟仅允许3个请求
+  block_duration: 60           # 极端测试：封禁时长60秒（快速测试）
+  whitelist_ips: 
+    - "127.0.0.1"              # 测试白名单IP
+    - "10.0.0.1"                # 测试白名单IP
+  blacklist_ips: 
+    - "192.168.1.100"           # 测试黑名单IP
+    - "192.168.1.200"           # 测试黑名单IP
+  key_prefix: "test_ddos_protection" # Redis键前缀（测试专用）
   enable_auto_blacklist: true   # 是否自动将超过阈值的IP加入黑名单

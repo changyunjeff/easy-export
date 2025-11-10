@@ -57,3 +57,23 @@ class SMTPConfig(BaseModel):
 class EmailConfig(BaseModel):
     enabled: bool = Field(default=False, description="Enable email service")
     smtp: Optional[SMTPConfig] = Field(default=None, description="SMTP configuration")
+
+
+class RateLimitConfig(BaseModel):
+    enabled: bool = Field(default=False, description="Enable rate limiting")
+    requests_per_minute: int = Field(default=60, description="Maximum requests per minute per IP")
+    requests_per_hour: int = Field(default=1000, description="Maximum requests per hour per IP")
+    requests_per_day: int = Field(default=10000, description="Maximum requests per day per IP")
+    burst_size: int = Field(default=10, description="Burst size for token bucket algorithm")
+    key_prefix: str = Field(default="rate_limit", description="Redis key prefix for rate limiting")
+
+
+class DDoSProtectionConfig(BaseModel):
+    enabled: bool = Field(default=False, description="Enable DDoS protection")
+    max_requests_per_second: int = Field(default=10, description="Maximum requests per second per IP")
+    max_requests_per_minute: int = Field(default=100, description="Maximum requests per minute per IP")
+    block_duration: int = Field(default=3600, description="Block duration in seconds when threshold exceeded")
+    whitelist_ips: list[str] = Field(default_factory=list, description="List of whitelisted IP addresses")
+    blacklist_ips: list[str] = Field(default_factory=list, description="List of blacklisted IP addresses")
+    key_prefix: str = Field(default="ddos_protection", description="Redis key prefix for DDoS protection")
+    enable_auto_blacklist: bool = Field(default=True, description="Automatically blacklist IPs exceeding threshold")

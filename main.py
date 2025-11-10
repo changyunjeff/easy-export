@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.middlewares import LoggingMiddleware
+from core.middlewares import LoggingMiddleware, RateLimitMiddleware, DDoSProtectionMiddleware
 from core.utils import is_debug
 from core.workers import worker_count
 from dotenv import load_dotenv
@@ -158,6 +158,18 @@ def create_app() -> FastAPI:
         )
         logger.info(f"CORS middleware enabled with origins: {api_config.cors.allow_origins}")
 
+    # 添加DDoS防护中间件（应该在其他中间件之前，最先执行）
+    ddos_config = getattr(config, "ddos_protection", None)
+    if ddos_config and getattr(ddos_config, "enabled", False):
+        app.add_middleware(DDoSProtectionMiddleware)
+        logger.info("DDoS protection middleware enabled")
+    
+    # 添加限流中间件（在DDoS防护之后，日志之前）
+    rate_limit_config = getattr(config, "rate_limit", None)
+    if rate_limit_config and getattr(rate_limit_config, "enabled", False):
+        app.add_middleware(RateLimitMiddleware)
+        logger.info("Rate limiting middleware enabled")
+    
     # 添加日志中间件
     app.add_middleware(LoggingMiddleware)
 

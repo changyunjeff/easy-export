@@ -155,6 +155,51 @@ class RedisClient(BaseClient):
             logger.error(f"Redis ttl error: {key} - {e}")
             raise
     
+    def incr(self, key: str, amount: int = 1) -> int:
+        """
+        增加键的值（原子操作）
+        
+        Args:
+            key: 键名
+            amount: 增加的数量，默认为1
+        
+        Returns:
+            增加后的值
+        """
+        try:
+            # 如果底层支持incr方法（Redis或MemoryStore）
+            if hasattr(self._client, 'incr'):
+                if amount == 1:
+                    # Redis的incr方法只接受key参数
+                    if hasattr(self._client, 'incrby'):
+                        # 真实Redis
+                        return self._client.incr(key)
+                    else:
+                        # MemoryStore
+                        return self._client.incr(key, amount)
+                else:
+                    # 需要增加指定数量
+                    if hasattr(self._client, 'incrby'):
+                        # 真实Redis
+                        return self._client.incrby(key, amount)
+                    else:
+                        # MemoryStore
+                        return self._client.incr(key, amount)
+            else:
+                # 回退方案：使用get/set（非原子操作，但可用）
+                current = self.get(key, 0)
+                if not isinstance(current, int):
+                    try:
+                        current = int(current)
+                    except (ValueError, TypeError):
+                        current = 0
+                new_value = current + amount
+                self.set(key, new_value)
+                return new_value
+        except Exception as e:
+            logger.error(f"Redis incr error: {key} - {e}")
+            raise
+    
     # ==================== 哈希操作 ====================
     
     def hset(self, name: str, key: Optional[str] = None, value: Any = None, mapping: Optional[Dict[str, Any]] = None) -> int:

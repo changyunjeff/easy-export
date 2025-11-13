@@ -16,7 +16,7 @@ class ExportRequest(BaseModel):
     output_format: str = Field(default="docx", description="输出格式（docx/pdf/html）")
     output_filename: Optional[str] = Field(default=None, description="输出文件名")
     overrides: Optional[Dict[str, Any]] = Field(default=None, description="运行时配置覆盖")
-    validate: bool = Field(default=True, description="是否执行格式校验")
+    enable_validation: bool = Field(default=True, description="是否执行格式校验")
     encrypt: Optional[Dict[str, Any]] = Field(default=None, description="加密配置")
 
 

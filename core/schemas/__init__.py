@@ -5,7 +5,7 @@ from typing import Optional
 
 from .configs import (
     AppConfig, LoggingConfig, RedisConfig, APIConfig, CORSConfig, 
-    EmailConfig, SMTPConfig, RateLimitConfig, DDoSProtectionConfig
+    EmailConfig, SMTPConfig, RateLimitConfig, DDoSProtectionConfig, RocketMQConfig
 )
 
 
@@ -17,9 +17,10 @@ class GlobalConfig(BaseModel):
     email: Optional[EmailConfig] = None
     rate_limit: Optional[RateLimitConfig] = None
     ddos_protection: Optional[DDoSProtectionConfig] = None
+    rocketmq: Optional[RocketMQConfig] = None
 
 __all__ = [
     'GlobalConfig', 'AppConfig', 'LoggingConfig', 'RedisConfig', 
     'APIConfig', 'CORSConfig', 'EmailConfig', 'SMTPConfig',
-    'RateLimitConfig', 'DDoSProtectionConfig'
+    'RateLimitConfig', 'DDoSProtectionConfig', 'RocketMQConfig'
 ]

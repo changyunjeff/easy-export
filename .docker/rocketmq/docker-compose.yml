@@ -1,0 +1,19 @@
+services:
+  rocketmq-nameserver:
+    image: apache/rocketmq:4.9.4
+    container_name: rocketmq-nameserver
+    ports:
+      - "9876:9876"
+    command: sh mqnamesrv
+    
+  rocketmq-broker:
+    image: apache/rocketmq:4.9.4
+    container_name: rocketmq-broker
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+    depends_on:
+      - rocketmq-nameserver
+    environment:
+      - NAMESRV_ADDR=rocketmq-nameserver:9876
+    command: sh mqbroker -c /home/rocketmq/rocketmq-4.9.4/conf/broker.conf

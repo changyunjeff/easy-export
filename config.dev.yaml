@@ -76,3 +76,26 @@ ddos_protection:
   blacklist_ips: []             # IP黑名单
   key_prefix: "ddos_protection" # Redis键前缀
   enable_auto_blacklist: true   # 是否自动将超过阈值的IP加入黑名单
+
+rocketmq:
+  enabled: true
+  name_server: "localhost:9876"           # RocketMQ NameServer地址
+  producer_group: "export_producer_group" # 生产者组名
+  consumer_group: "export_consumer_group" # 消费者组名
+  topic: "export_tasks"                   # 导出任务主题
+  tag: "*"                               # 消息标签过滤器
+  max_message_size: 4194304              # 最大消息大小(4MB)
+  send_timeout: 3000                     # 发送超时时间(毫秒)
+  retry_times: 3                         # 发送失败重试次数
+  consumer_thread_min: 1                 # 最小消费者线程数
+  consumer_thread_max: 5                 # 最大消费者线程数
+  consume_message_batch_max_size: 1      # 批量消费最大消息数
+  pull_batch_size: 32                    # 拉取批次大小
+  pull_interval: 0                       # 拉取间隔(毫秒)
+  consume_timeout: 15                    # 消费超时时间(分钟)
+  max_reconsume_times: 16               # 最大重新消费次数
+  suspend_current_queue_time: 1000      # 暂停当前队列时间(毫秒)
+  access_key: null                      # 访问密钥(可选)
+  secret_key: null                      # 秘密密钥(可选)
+  security_token: null                  # 安全令牌(可选)
+  namespace: null                       # 命名空间(可选)

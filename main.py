@@ -59,7 +59,20 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"Failed to initialize in-memory storage: {e}")
     
-    # 阶段 2: 初始化 Email 服务（如果启用）
+    # 阶段 2: 初始化 RocketMQ（如果启用）
+    rocketmq_config = getattr(config, "rocketmq", None)
+    if rocketmq_config and getattr(rocketmq_config, "enabled", False):
+        try:
+            from core.rocketmq import initialize_rocketmq, start_rocketmq
+            initialize_rocketmq()
+            start_rocketmq()
+            logger.info("RocketMQ service initialized successfully")
+        except Exception as e:
+            logger.warning(f"Failed to initialize RocketMQ service: {e}. Will use fallback mode when needed.")
+    else:
+        logger.info("RocketMQ service not enabled in config")
+
+    # 阶段 3: 初始化 Email 服务（如果启用）
     email_config = getattr(config, "email", None)
     if email_config and getattr(email_config, "enabled", False):
         try:
@@ -93,7 +106,15 @@ async def lifespan(app: FastAPI):
     
     # ========== 关闭阶段：清理资源 ==========
     logger.info("Starting application shutdown...")
-    
+
+    # 清理 RocketMQ 服务
+    try:
+        from core.rocketmq import stop_rocketmq
+        stop_rocketmq()
+        logger.info("RocketMQ service closed")
+    except Exception as e:
+        logger.warning(f"Error closing RocketMQ service: {e}")
+
     # 清理 Email 服务
     try:
         from core.email import close_email
@@ -101,7 +122,7 @@ async def lifespan(app: FastAPI):
         logger.info("Email service closed")
     except Exception as e:
         logger.warning(f"Error closing Email service: {e}")
-    
+
     # 清理 Redis 连接
     try:
         from core.redis import close_redis
@@ -109,7 +130,7 @@ async def lifespan(app: FastAPI):
         logger.info("Redis connection closed")
     except Exception as e:
         logger.warning(f"Error closing Redis connection: {e}")
-    
+
     logger.info("Application shutdown completed")
 
 

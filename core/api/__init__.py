@@ -6,6 +6,7 @@ from .v1 import (
     export_router,
     validate_router,
     stats_router,
+    queue_router,
 )
 
 # 注册到全局路由注册器
@@ -59,4 +60,13 @@ router_registry.add_router(
     priority=20,
     name="stats",
     description="Statistics API"
+)
+
+# 注册队列监控路由
+router_registry.add_router(
+    router=queue_router,
+    router_type=RouterType.API | RouterType.PUBLIC,
+    priority=20,
+    name="queue",
+    description="Queue monitoring API"
 )

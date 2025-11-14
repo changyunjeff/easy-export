@@ -5,7 +5,16 @@
 
 from .template import TemplateEngine
 from .renderer import Renderer, DocxRenderer, PDFRenderer, HTMLRenderer, RendererFactory
-from .filler import Filler, TextFiller, TableFiller, ImageFiller, ChartFiller
+from .filler import (
+    ChartFillResult,
+    ChartFiller,
+    Filler,
+    ImageFillResult,
+    ImageFiller,
+    TableFillResult,
+    TableFiller,
+    TextFiller,
+)
 from .chart import ChartGenerator
 from .image import ImageProcessor
 from .converter import Converter
@@ -22,6 +31,9 @@ __all__ = [
     "TableFiller",
     "ImageFiller",
     "ChartFiller",
+    "TableFillResult",
+    "ImageFillResult",
+    "ChartFillResult",
     "ChartGenerator",
     "ImageProcessor",
     "Converter",

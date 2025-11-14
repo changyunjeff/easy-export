@@ -1,0 +1,24 @@
+{
+  "type": "line",
+  "data": [
+    { "month": "Jan", "actual": 72, "plan": 65 },
+    { "month": "Feb", "actual": 80, "plan": 70 },
+    { "month": "Mar", "actual": 90, "plan": 75 },
+    { "month": "Apr", "actual": 88, "plan": 78 },
+    { "month": "May", "actual": 95, "plan": 82 },
+    { "month": "Jun", "actual": 102, "plan": 85 }
+  ],
+  "config": {
+    "x_field": "month",
+    "series": [
+      { "y_field": "actual", "label": "Actual" },
+      { "y_field": "plan", "label": "Plan" }
+    ],
+    "title": "Monthly Signups",
+    "y_label": "Signups",
+    "width": 720,
+    "height": 420,
+    "grid": true
+  }
+}
+

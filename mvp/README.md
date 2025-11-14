@@ -126,10 +126,55 @@ python mvp/create_word_template.py mvp/example_template.docx
 
 ---
 
+## 3. 图表快速导出 (chart_export.py)
+
+### 功能
+- 读取包含 `data/config/type` 的 JSON 文件
+- 通过 `ChartGenerator` 生成折线/柱状/饼图图片
+- 支持 PNG/JPEG 输出与多序列配置
+
+### 安装依赖
+```bash
+pip install matplotlib Pillow
+```
+（完整项目请执行 `pip install -r requirements.txt`）
+
+### 使用方法
+
+```bash
+# 基于示例数据生成折线图（默认输出 chart_line.png）
+python mvp/chart_export.py mvp/chart_sample.json
+
+# 指定输出路径与图片格式
+python mvp/chart_export.py mvp/chart_sample.json -o output/sales.jpg --format jpg
+
+# 覆盖 JSON 中的图表类型
+python mvp/chart_export.py mvp/chart_sample.json --type bar
+```
+
+示例 JSON 结构参考 `mvp/chart_sample.json`：
+```json
+{
+  "type": "line",
+  "data": [{ "month": "Jan", "actual": 72, "plan": 65 }],
+  "config": {
+    "x_field": "month",
+    "series": [
+      { "y_field": "actual", "label": "Actual" },
+      { "y_field": "plan", "label": "Plan" }
+    ],
+    "title": "Monthly Signups"
+  }
+}
+```
+
+---
+
 ## 示例数据文件
 
 - `example_data.json` - HTML模板示例数据
 - `word_example_data.json` - Word模板示例数据
+- `chart_sample.json` - 图表生成示例数据
 
 ---
 

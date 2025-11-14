@@ -33,6 +33,7 @@
   <h3>✨ 新增</h3>
   <ul>
     <li>实现 TemplateStorage 文件落盘与版本管理，新增 manifest/哈希维护并补充单元测试。</li>
+    <li>实现 FileStorage 输出落盘、URL 生成与过期清理能力，并补充单元测试。</li>
   </ul>
 </div>
 

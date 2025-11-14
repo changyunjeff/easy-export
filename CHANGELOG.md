@@ -36,6 +36,7 @@
     <li>实现 FileStorage 输出落盘、URL 生成与过期清理能力，并补充单元测试。</li>
     <li>实现 CacheStorage 图表/模板元数据/任务状态三类缓存接口，提供 TTL/校验工具并编写配套单测。</li>
     <li>实现 TemplateEngine 模板加载、占位符解析/校验与 Jinja2 渲染能力，新增覆盖 HTML/DOCX 的单元测试。</li>
+    <li>实现 HTML 渲染器与 RendererFactory，打通 ExportService HTML 单文档导出流程并补充单元测试。</li>
   </ul>
 </div>
 

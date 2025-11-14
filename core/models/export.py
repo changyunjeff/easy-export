@@ -24,6 +24,7 @@ class ExportResult(BaseModel):
     """导出结果模型"""
     
     task_id: str = Field(..., description="任务ID")
+    file_id: str = Field(..., description="文件ID")
     file_path: str = Field(..., description="文件路径")
     file_url: Optional[str] = Field(default=None, description="文件URL")
     file_size: int = Field(..., description="文件大小（字节）")

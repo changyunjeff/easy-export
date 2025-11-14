@@ -4,7 +4,7 @@
 """
 
 from .template_service import TemplateService
-from .export_service import ExportService
+from .export_service import AbstractExportService, ExportService
 from .batch_service import BatchService
 from .validate_service import ValidateService
 from .stats_service import StatsService
@@ -12,6 +12,7 @@ from .file_service import FileService
 
 __all__ = [
     "TemplateService",
+    "AbstractExportService",
     "ExportService",
     "BatchService",
     "ValidateService",

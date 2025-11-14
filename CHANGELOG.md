@@ -35,6 +35,7 @@
     <li>实现 TemplateStorage 文件落盘与版本管理，新增 manifest/哈希维护并补充单元测试。</li>
     <li>实现 FileStorage 输出落盘、URL 生成与过期清理能力，并补充单元测试。</li>
     <li>实现 CacheStorage 图表/模板元数据/任务状态三类缓存接口，提供 TTL/校验工具并编写配套单测。</li>
+    <li>实现 TemplateEngine 模板加载、占位符解析/校验与 Jinja2 渲染能力，新增覆盖 HTML/DOCX 的单元测试。</li>
   </ul>
 </div>
 
@@ -42,6 +43,7 @@
   <h3>🛠️ 变更</h3>
   <ul>
     <li>更新能力矩阵，标记缓存存储能力与里程碑 M2 进度。</li>
+    <li>更新能力矩阵与里程碑状态，标记模板引擎完成并刷新核心引擎层进度。</li>
   </ul>
 </div>
 

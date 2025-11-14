@@ -17,13 +17,13 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
-    <li><a href="#v0.1.0">v0.1.0 — 2025-11-09</a></li>
+    <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
 
 <hr>
 
-<h2 id="v0.1.0">v0.1.0 <small style="color:#888;font-weight:normal;">2025‑11‑09</small></h2>
+<h2 id="v0.1.0">v0.1.0 <small style="color:#888;font-weight:normal;">2025‑11‑14</small></h2>
 
 <blockquote>
   <p><strong>Alpha 首个节点</strong>：这里是变更简介。</p>
@@ -32,7 +32,7 @@
 <div>
   <h3>✨ 新增</h3>
   <ul>
-    <li>这里是新增列表。</li>
+    <li>实现 TemplateStorage 文件落盘与版本管理，新增 manifest/哈希维护并补充单元测试。</li>
   </ul>
 </div>
 

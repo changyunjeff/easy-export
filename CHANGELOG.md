@@ -39,6 +39,7 @@
     <li>实现 HTML 渲染器与 RendererFactory，打通 ExportService HTML 单文档导出流程并补充单元测试。</li>
     <li>实现 ChartGenerator 折线/柱状/饼图、统一配置与数据哈希缓存，支持 PNG/JPEG 输出并新增 <code>tests/test_chart_generator.py</code>。</li>
     <li>新增 <code>mvp/chart_export.py</code> 与 <code>mvp/chart_sample.json</code>，提供 CLI 级图表导出 MVP 参考流程。</li>
+    <li>实现 Text/Table/Image/Chart Filler 及数据映射/空值策略，新增结构化 FillResult 数据结构与 <code>tests/test_filler.py</code> 全覆盖单测。</li>
   </ul>
 </div>
 
@@ -49,6 +50,7 @@
     <li>更新能力矩阵与里程碑状态，标记模板引擎完成并刷新核心引擎层进度。</li>
     <li>能力矩阵与里程碑同步图表生成器完成度，核心引擎完成率提升至 60.6%。</li>
     <li>项目依赖新增 matplotlib，并补充 MVP 文档介绍图表导出流程。</li>
+    <li>能力矩阵同步填充引擎 6/6 完成度，核心引擎完成率提升至 78.8%，里程碑 M3 更新至 79%。</li>
   </ul>
 </div>
 

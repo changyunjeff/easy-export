@@ -48,6 +48,10 @@
     <li><strong>新增 <code>core/gtk3_checker.py</code> - GTK3 环境检查与初始化模块，优雅处理 WeasyPrint 依赖</strong>。</li>
     <li><strong>实现 GTK3 自动检测 - 应用启动时自动检查 GTK3 可用性，提供详细诊断信息与配置指引</strong>。</li>
     <li><strong>新增 <code>docs/GTK3配置指南.md</code> - 详细的 GTK3 配置文档，覆盖 Windows/Linux/macOS 多平台</strong>。</li>
+    <li><strong>完成 TemplateService 核心功能 - 实现模板创建、获取、列表、更新、删除、版本管理等7大功能，通过23个单元测试</strong>。</li>
+    <li><strong>修复 TemplateService.get_template - 增强 datetime 字段处理，支持字符串与对象混合场景</strong>。</li>
+    <li><strong>实现 TemplateStorage.list_templates - 新增列出所有模板 ID 的方法，支持服务层分页查询</strong>。</li>
+    <li><strong>优化 TemplateService 异常处理 - delete_template 和 create_version 增加完善的异常抛出逻辑</strong>。</li>
   </ul>
 </div>
 

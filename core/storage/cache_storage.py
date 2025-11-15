@@ -26,6 +26,7 @@ class CacheStorage:
     CHART_PREFIX = "chart:"
     TEMPLATE_METADATA_PREFIX = "template:metadata:"
     TASK_STATUS_PREFIX = "task:status:"
+    BATCH_TASK_PREFIX = "batch:task:"
 
     def __init__(self, redis_client: Optional[RedisClient] = None):
         """
@@ -247,6 +248,74 @@ class CacheStorage:
         key = self._task_key(task_id)
         return self._client.delete(key) > 0
 
+    # ==================== 批量任务缓存 ====================
+
+    def cache_batch_task(
+        self,
+        batch_task_id: str,
+        batch_data: Dict[str, Any],
+        ttl: Union[int, float, timedelta] = 3600,
+    ) -> bool:
+        """
+        缓存批量任务信息
+
+        Args:
+            batch_task_id: 批量任务ID
+            batch_data: 批量任务数据（字典）
+            ttl: 缓存过期时间（秒或 timedelta），默认1小时
+
+        Returns:
+            是否缓存成功
+        """
+        if not isinstance(batch_data, dict):
+            raise ValueError("batch_data 必须是字典")
+
+        key = self._batch_task_key(batch_task_id)
+        payload = {
+            "batch_data": deepcopy(batch_data),
+            "cached_at": self._utcnow(),
+        }
+        ttl_seconds = self._normalize_ttl(ttl)
+        return bool(self._client.set(key, payload, ex=ttl_seconds))
+
+    def get_batch_task(
+        self,
+        batch_task_id: str,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        获取缓存的批量任务信息
+
+        Args:
+            batch_task_id: 批量任务ID
+
+        Returns:
+            批量任务数据（字典），如果不存在则返回 None
+        """
+        key = self._batch_task_key(batch_task_id)
+        cached = self._client.get(key)
+        if cached is None:
+            return None
+
+        if isinstance(cached, dict):
+            batch_data = cached.get("batch_data", cached)
+            return deepcopy(batch_data)
+
+        logger.debug("Batch task cache entry is not a dict: %s", key)
+        return None
+
+    def delete_batch_task(self, batch_task_id: str) -> bool:
+        """
+        删除缓存的批量任务信息
+
+        Args:
+            batch_task_id: 批量任务ID
+
+        Returns:
+            是否删除成功
+        """
+        key = self._batch_task_key(batch_task_id)
+        return self._client.delete(key) > 0
+
     # ==================== 工具方法 ====================
 
     def _chart_key(self, data_hash: str) -> str:
@@ -260,6 +329,10 @@ class CacheStorage:
     def _task_key(self, task_id: str) -> str:
         value = self._ensure_identifier(task_id, "task_id")
         return f"{self.TASK_STATUS_PREFIX}{value}"
+
+    def _batch_task_key(self, batch_task_id: str) -> str:
+        value = self._ensure_identifier(batch_task_id, "batch_task_id")
+        return f"{self.BATCH_TASK_PREFIX}{value}"
 
     def _ensure_identifier(self, value: str, field_name: str) -> str:
         if not value or not isinstance(value, str):

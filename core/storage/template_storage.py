@@ -150,6 +150,10 @@ class TemplateStorage:
         if version is None:
             if not template_dir.exists():
                 return False
+            manifest_path = template_dir / self.MANIFEST_FILENAME
+            # 仅当存在有效的模板清单时才视为可删除的模板
+            if not manifest_path.exists():
+                return False
             shutil.rmtree(template_dir)
             logger.debug("Template %s removed completely", template_id)
             return True

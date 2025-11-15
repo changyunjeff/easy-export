@@ -25,12 +25,14 @@ class ExportTask(BaseModel):
     output_format: str = Field(..., description="输出格式（docx/pdf/html）")
     status: TaskStatus = Field(default=TaskStatus.PENDING, description="任务状态")
     progress: int = Field(default=0, ge=0, le=100, description="进度（0-100）")
+    message: Optional[str] = Field(default=None, description="状态消息")
     file_path: Optional[str] = Field(default=None, description="文件路径")
+    file_url: Optional[str] = Field(default=None, description="文件URL")
     file_size: Optional[int] = Field(default=None, description="文件大小（字节）")
     pages: Optional[int] = Field(default=None, description="页数")
     report: Optional[Dict[str, Any]] = Field(default=None, description="导出报告")
-    error: Optional[Dict[str, Any]] = Field(default=None, description="错误信息")
-    created_at: datetime = Field(default_factory=datetime.now, description="创建时间")
+    error: Optional[str] = Field(default=None, description="错误信息")
+    created_at: Optional[datetime] = Field(default=None, description="创建时间")
     completed_at: Optional[datetime] = Field(default=None, description="完成时间")
 
 

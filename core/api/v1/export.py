@@ -3,7 +3,7 @@
 提供单文档导出、批量导出、任务状态查询、文件下载等功能
 """
 
-from fastapi import APIRouter, Query, Path as PathParam, HTTPException
+from fastapi import APIRouter, Query, Path as PathParam, HTTPException, Response
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 import logging
@@ -12,8 +12,12 @@ from core.response import HttpResponse, OkWithDetail, ErrorWithDetail, success_r
 from core.utils import get_api_prefix
 from core.models.export import ExportRequest
 from core.rocketmq import get_rocketmq_manager, RocketMQException
+from core.service.export_service import ExportService
 
 logger = logging.getLogger(__name__)
+
+# 初始化导出服务
+export_service = ExportService()
 
 export_router = APIRouter(
     prefix=f"{get_api_prefix()}/export",
@@ -195,34 +199,47 @@ async def get_task_status(
     - **failed**: 失败
     """
     try:
-        # TODO: 实现任务状态查询逻辑
-        # 这里应该从Redis或其他存储中查询任务状态
-        # 目前返回模拟状态
-
-        # 检查RocketMQ队列状态
-        mq_manager = get_rocketmq_manager()
-        queue_status = mq_manager.get_queue_status()
-
-        # 模拟任务状态查询
-        # 在实际实现中，应该有专门的任务状态存储
-        task_status = {
-            "task_id": task_id,
-            "status": "pending",  # pending, processing, completed, failed
-            "progress": 0,
-            "message": "任务已提交到队列，等待处理",
-            "queue_info": {
-                "total_lag": queue_status.get("metrics", {}).get("total_lag", 0),
-                "is_healthy": queue_status.get("health", {}).get("healthy", False)
-            },
-            "created_at": None,  # 应该从存储中获取
-            "updated_at": None   # 应该从存储中获取
+        # 从导出服务查询任务状态
+        task = export_service.get_task_status(task_id)
+        
+        # 构造响应数据
+        task_data = {
+            "task_id": task.task_id,
+            "template_id": task.template_id,
+            "template_version": task.template_version,
+            "output_format": task.output_format,
+            "status": task.status,
+            "progress": task.progress,
+            "message": task.message,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "completed_at": task.completed_at.isoformat() if task.completed_at else None,
         }
+        
+        # 如果任务完成，添加文件信息
+        if task.status == "completed" and task.file_path:
+            task_data.update({
+                "file_path": task.file_path,
+                "file_url": task.file_url,
+                "file_size": task.file_size,
+                "pages": task.pages,
+            })
+        
+        # 如果任务失败，添加错误信息
+        if task.status == "failed" and task.error:
+            task_data["error"] = task.error
 
         return success_response(
-            data=task_status,
+            data=task_data,
             message="获取任务状态成功"
         )
 
+    except FileNotFoundError as e:
+        logger.warning(f"Task not found: {task_id}")
+        return error_response(
+            message=f"任务不存在: {task_id}",
+            error_code="TASK_NOT_FOUND"
+        )
+    
     except Exception as e:
         logger.error(f"Error getting task status for {task_id}: {str(e)}")
         return error_response(
@@ -231,7 +248,7 @@ async def get_task_status(
         )
 
 
-@export_router.get("/files/{file_id}")
+@export_router.get("/files/{file_id}", response_class=Response)
 async def download_file(
     file_id: str = PathParam(..., description="文件ID"),
     download: bool = Query(default=False, description="是否直接下载（默认false，返回文件流）"),
@@ -245,19 +262,43 @@ async def download_file(
     返回文件流（Content-Type根据文件类型）
     """
     try:
-        # TODO: 实现文件下载逻辑
-        # 这里应该从文件存储中获取文件
-        # 目前返回未实现的错误
-
-        return error_response(
-            message="文件下载功能暂未实现，请稍后查看任务状态获取文件信息",
-            error_code="FILE_DOWNLOAD_NOT_IMPLEMENTED"
+        # 从文件存储中获取文件
+        file_content = export_service.download_file(file_id)
+        
+        # 从文件ID中提取格式
+        file_extension = file_id.split(".")[-1].lower()
+        
+        # 设置Content-Type
+        content_type_map = {
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "pdf": "application/pdf",
+            "html": "text/html",
+            "htm": "text/html",
+        }
+        content_type = content_type_map.get(file_extension, "application/octet-stream")
+        
+        # 设置响应头
+        headers = {
+            "Content-Length": str(len(file_content)),
+        }
+        
+        # 如果指定下载，则添加Content-Disposition头
+        if download:
+            headers["Content-Disposition"] = f'attachment; filename="{file_id}"'
+        
+        logger.info(f"File download successful: {file_id} ({len(file_content)} bytes)")
+        
+        return Response(
+            content=file_content,
+            media_type=content_type,
+            headers=headers
         )
 
+    except FileNotFoundError as e:
+        logger.warning(f"File not found: {file_id}")
+        raise HTTPException(status_code=404, detail=f"文件不存在: {file_id}")
+    
     except Exception as e:
         logger.error(f"Error downloading file {file_id}: {str(e)}")
-        return error_response(
-            message=f"文件下载失败: {str(e)}",
-            error_code="FILE_DOWNLOAD_FAILED"
-        )
+        raise HTTPException(status_code=500, detail=f"文件下载失败: {str(e)}")
 

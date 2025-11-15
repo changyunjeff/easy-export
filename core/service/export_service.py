@@ -18,6 +18,7 @@ from core.engine import RendererFactory, TemplateEngine
 from core.models.export import ExportReport, ExportRequest, ExportResult
 from core.models.task import ExportTask, TaskStatus
 from core.storage import FileStorage, CacheStorage
+from core.service.stats_service import StatsService
 
 logger = logging.getLogger(__name__)
 
@@ -54,12 +55,14 @@ class ExportService(AbstractExportService):
         template_engine: Optional[TemplateEngine] = None,
         file_storage: Optional[FileStorage] = None,
         cache_storage: Optional[CacheStorage] = None,
+        stats_service: Optional[StatsService] = None,
         renderer_factory: type[RendererFactory] = RendererFactory,
         default_output_format: str = "html",
     ) -> None:
         self._template_engine = template_engine or TemplateEngine()
         self._file_storage = file_storage or FileStorage()
         self._cache_storage = cache_storage or CacheStorage()
+        self._stats_service = stats_service or StatsService(self._cache_storage)
         self._renderer_factory = renderer_factory
         self._default_output_format = default_output_format
         logger.info("Export service initialized (default_format=%s)", default_output_format)
@@ -174,6 +177,17 @@ class ExportService(AbstractExportService):
                 file_size=len(rendered_bytes)
             )
 
+            # 记录统计数据
+            self._stats_service.record_export_task(
+                task_id=task_id,
+                template_id=template_id,
+                output_format=target_format,
+                file_size=len(rendered_bytes),
+                pages=result.pages,
+                elapsed_ms=elapsed_ms,
+                success=True,
+            )
+
             logger.info(
                 "Export task %s completed (%s, %d bytes)",
                 task_id,
@@ -191,6 +205,22 @@ class ExportService(AbstractExportService):
                 message=f"导出失败: {str(e)}",
                 error=str(e)
             )
+            
+            # 记录失败的统计数据
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
+            template_id = request.template_ref  # 使用原始引用作为fallback
+            target_format = request.output_format or self._default_output_format
+            
+            self._stats_service.record_export_task(
+                task_id=task_id,
+                template_id=template_id,
+                output_format=target_format,
+                file_size=0,
+                pages=0,
+                elapsed_ms=elapsed_ms,
+                success=False,
+            )
+            
             raise
 
     def get_task_status(

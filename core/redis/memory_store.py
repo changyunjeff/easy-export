@@ -199,6 +199,26 @@ class MemoryStore(BaseStore):
                     count += 1
             return count
     
+    def hincrby(self, name: str, key: str, amount: int = 1) -> int:
+        """增加哈希字段的值（原子操作）"""
+        with self._lock:
+            self._cleanup_expired(name)
+            
+            # 清理其他类型的数据
+            self._strings.pop(name, None)
+            self._lists.pop(name, None)
+            self._sets.pop(name, None)
+            self._zsets.pop(name, None)
+            
+            current = self._hashes.get(name, {}).get(key, 0)
+            try:
+                new_value = int(current) + amount
+            except (ValueError, TypeError):
+                new_value = amount
+            
+            self._hashes[name][key] = new_value
+            return new_value
+    
     # ==================== 列表操作 ====================
     
     def lpush(self, name: str, *values: Any) -> int:

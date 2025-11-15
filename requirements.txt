@@ -2,7 +2,7 @@ fastapi==0.121.1
 PyYaml==6.0.3
 pydantic_yaml==1.4.0
 email-validator==2.3.0
-dotenv==0.9.9
+python-dotenv==1.0.0
 redis==7.0.1
 jinja2==3.1.6
 requests==2.32.3

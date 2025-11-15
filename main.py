@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import logging
 from contextlib import asynccontextmanager
 
@@ -27,6 +28,16 @@ async def lifespan(app: FastAPI):
     
     # ========== 启动阶段：初始化资源 ==========
     logger.info("Starting application initialization...")
+    
+    # 阶段 0: 初始化 GTK3 环境（用于 WeasyPrint PDF 导出）
+    try:
+        from core.gtk3_checker import initialize_gtk3
+        # required=False: GTK3不可用时只记录警告，不中断启动
+        gtk3_available = initialize_gtk3(required=False)
+        if not gtk3_available:
+            logger.warning("PDF导出功能可能不可用，请配置GTK3环境")
+    except Exception as e:
+        logger.warning(f"GTK3环境检查失败: {e}")
     
     # 阶段 1: 初始化 Redis（如果启用）或使用内存存储回退
     redis_config = getattr(config, "redis", None)
@@ -210,7 +221,16 @@ def create_app() -> FastAPI:
     return app
 
 if __name__ == "__main__":
+    # 先加载环境变量（包含MSYS2_BIN等配置）
     load_dotenv()
+    
+    # 在导入WeasyPrint之前初始化GTK3环境
+    try:
+        from core.gtk3_checker import setup_gtk3_environment
+        setup_gtk3_environment()
+    except Exception:
+        pass  # 在lifespan中会再次检查
+    
     import uvicorn
     cfg = get_config()
     # 确保子进程/重载时日志也已配置

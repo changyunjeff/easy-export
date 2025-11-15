@@ -16,7 +16,7 @@ from core.response import success_response, error_response
 logger = logging.getLogger(__name__)
 
 # 创建路由
-router = APIRouter(f"{get_api_prefix()}/files", tags=["files"])
+router = APIRouter(prefix=f"{get_api_prefix()}/files", tags=["files"])
 
 # 初始化文件服务
 file_service = FileService()

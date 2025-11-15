@@ -17,9 +17,59 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.1">v0.1.1 — 2025-11-15</a></li>
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.1">v0.1.1 <small style="color:#888;font-weight:normal;">2025‑11‑15</small></h2>
+
+<blockquote>
+  <p><strong>健康检查功能</strong>：添加服务健康检查API接口，支持Kubernetes探针。</p>
+</blockquote>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[API]</strong> 添加健康检查接口 <code>/api/v1/health</code>
+    <ul>
+      <li>检查Redis连接状态</li>
+      <li>检查RocketMQ队列状态</li>
+      <li>检查文件系统可写性</li>
+      <li>返回磁盘空间信息和响应时间</li>
+      <li>支持降级模式（Redis/RocketMQ不可用时仍可服务）</li>
+    </ul>
+  </li>
+  <li><strong>[API]</strong> 添加Kubernetes存活探针 <code>/api/v1/health/live</code>
+    <ul>
+      <li>轻量级存活检查，仅验证应用是否运行</li>
+    </ul>
+  </li>
+  <li><strong>[API]</strong> 添加Kubernetes就绪探针 <code>/api/v1/health/ready</code>
+    <ul>
+      <li>验证应用是否准备好接收流量</li>
+      <li>支持降级模式判断</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🧪 测试</h3>
+<ul>
+  <li><strong>[测试]</strong> 添加健康检查API完整测试套件
+    <ul>
+      <li>8个API集成测试</li>
+      <li>9个单元测试</li>
+      <li>测试覆盖率：100%</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🔧 改进</h3>
+<ul>
+  <li><strong>[跨平台]</strong> 使用 <code>shutil.disk_usage</code> 替代 <code>os.statvfs</code>，提高Windows兼容性</li>
+  <li><strong>[代码质量]</strong> 修复 <code>APIRouter</code> 初始化方式，使用 <code>prefix</code> 参数</li>
+</ul>
 
 <hr>
 

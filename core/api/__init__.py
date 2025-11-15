@@ -7,6 +7,7 @@ from .v1 import (
     validate_router,
     stats_router,
     queue_router,
+    files_router,
 )
 
 # 注册到全局路由注册器
@@ -69,4 +70,13 @@ router_registry.add_router(
     priority=20,
     name="queue",
     description="Queue monitoring API"
+)
+
+# 注册文件管理路由
+router_registry.add_router(
+    router=files_router,
+    router_type=RouterType.API | RouterType.PUBLIC,
+    priority=20,
+    name="files",
+    description="File management API"
 )

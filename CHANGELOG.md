@@ -48,6 +48,10 @@
     <li><strong>新增 <code>core/gtk3_checker.py</code> - GTK3 环境检查与初始化模块，优雅处理 WeasyPrint 依赖</strong>。</li>
     <li><strong>实现 GTK3 自动检测 - 应用启动时自动检查 GTK3 可用性，提供详细诊断信息与配置指引</strong>。</li>
     <li><strong>新增 <code>docs/GTK3配置指南.md</code> - 详细的 GTK3 配置文档，覆盖 Windows/Linux/macOS 多平台</strong>。</li>
+    <li><strong>实现 IFileService 抽象接口 - 定义文件服务标准接口，包括上传、下载、列表查询、删除、清理等方法</strong>。</li>
+    <li><strong>实现 FileService 完整功能 - 支持文件上传（含大小限制和扩展名验证）、下载、列表查询（支持分页和筛选）、删除、过期文件清理等</strong>。</li>
+    <li><strong>新增文件管理 API 接口 - 实现 <code>core/api/v1/files.py</code>，提供 POST /api/v1/files、GET /api/v1/files、GET /api/v1/files/{file_id}、GET /api/v1/files/{file_id}/download、DELETE /api/v1/files/{file_id}、POST /api/v1/files/cleanup 六个接口</strong>。</li>
+    <li><strong>新增 <code>tests/test_file_service.py</code> - 22个单元测试覆盖文件服务全部功能，包括上传、下载、列表、删除、过滤、分页等场景</strong>。</li>
     <li><strong>完成 TemplateService 核心功能 - 实现模板创建、获取、列表、更新、删除、版本管理等7大功能，通过23个单元测试</strong>。</li>
     <li><strong>修复 TemplateService.get_template - 增强 datetime 字段处理，支持字符串与对象混合场景</strong>。</li>
     <li><strong>实现 TemplateStorage.list_templates - 新增列出所有模板 ID 的方法，支持服务层分页查询</strong>。</li>
@@ -102,6 +106,16 @@
     <li><strong>项目整体完成度提升至69.6%，P0核心功能完成率提升至90.8%</strong>。</li>
     <li><strong>里程碑M5（API接口实现）完成度达到100%，已完成</strong>。</li>
     <li><strong>MVP目录新增validate_document.py，提供文档校验命令行工具参考实现</strong>。</li>
+  </ul>
+</div>
+
+<div>
+  <h3>🐛 修复</h3>
+  <ul>
+    <li><strong>修复测试环境依赖缺失 - 补充安装 python-multipart==0.0.20，解决 Form 数据上传问题</strong>。</li>
+    <li><strong>修复生产配置缺失 - 补充 config.prod.yaml 完整配置，包括 API、Redis、RocketMQ、Email、限流和日志配置</strong>。</li>
+    <li><strong>增强 API 前缀函数健壮性 - 修复 get_api_prefix() 空值处理，确保始终返回有效的路径前缀</strong>。</li>
+    <li><strong>修复模板API测试错误 - 解决 test_templates_api.py 中"路径前缀必须以'/'开头"的断言错误</strong>。</li>
   </ul>
 </div>
 

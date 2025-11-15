@@ -5,6 +5,7 @@ from .export import export_router
 from .validate import validate_router
 from .stats import stats_router
 from .queue import router as queue_router
+from .files import router as files_router
 
 __all__ = [
     "example_router",
@@ -14,4 +15,5 @@ __all__ = [
     "validate_router",
     "stats_router",
     "queue_router",
+    "files_router",
 ]

@@ -23,16 +23,25 @@ def get_api_prefix() -> str:
     Returns:
         str: API prefix，例如 "/api/v1"，如果配置不存在则返回默认值 "/api/v1"
     """
+    default_prefix = "/api/v1"
+    
     try:
         from core.config import get_config
         config = get_config()
         api_config = getattr(config, "api", None)
-        if api_config and api_config.prefix:
-            return api_config.prefix
+        if api_config:
+            prefix = getattr(api_config, "prefix", None)
+            # 确保 prefix 是非空字符串并且以 '/' 开头
+            if prefix and isinstance(prefix, str) and prefix.strip():
+                prefix = prefix.strip()
+                if not prefix.startswith('/'):
+                    prefix = '/' + prefix
+                return prefix
     except Exception:
         # 如果配置未加载或出错，返回默认值
         pass
-    return "/api/v1"
+    
+    return default_prefix
 
 
 def parse_time_string(time_str: str) -> timedelta:

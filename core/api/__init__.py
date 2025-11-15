@@ -8,6 +8,7 @@ from .v1 import (
     stats_router,
     queue_router,
     files_router,
+    health_router,
 )
 
 # 注册到全局路由注册器
@@ -79,4 +80,13 @@ router_registry.add_router(
     priority=20,
     name="files",
     description="File management API"
+)
+
+# 注册健康检查路由
+router_registry.add_router(
+    router=health_router,
+    router_type=RouterType.API | RouterType.PUBLIC,
+    priority=10,
+    name="health",
+    description="Health check API"
 )

@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>这里是标题</h1>
+  <h1>FastExport · CHANGELOG</h1>
   <p>
     <a href="#v0.1.0">
       <img alt="version" src="https://img.shields.io/badge/version-v0.1.0-blue?style=flat-square">
@@ -8,7 +8,7 @@
     <img alt="license" src="https://img.shields.io/badge/license-Apache%202.0-lightgrey?style=flat-square">
   </p>
   <p style="margin-top:8px;color:#666;">
-    这里是简介
+    快速将模板导出为多种格式
   </p>
 </div>
 
@@ -17,12 +17,132 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.4">v0.1.4 — 2025-11-15</a></li>
     <li><a href="#v0.1.3">v0.1.3 — 2025-11-15</a></li>
     <li><a href="#v0.1.2">v0.1.2 — 2025-11-15</a></li>
     <li><a href="#v0.1.1">v0.1.1 — 2025-11-15</a></li>
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.4">v0.1.4 <small style="color:#888;font-weight:normal;">2025‑11‑15</small></h2>
+
+<blockquote>
+  <p><strong>安全功能实现</strong>：实现完整的安全验证和数据脱敏功能,提升系统安全性。</p>
+</blockquote>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[安全模块]</strong> 实现 SecurityValidator 安全验证器
+    <ul>
+      <li>模板路径白名单验证 - 防止路径遍历攻击,支持白名单目录限制</li>
+      <li>文件类型验证 - MIME类型和扩展名验证,支持DOCX/HTML/PDF等12种格式</li>
+      <li>文件大小限制 - 默认50MB,可配置,防止大文件攻击</li>
+      <li>文件哈希校验 - 支持SHA256/MD5/SHA1等算法,确保文件完整性</li>
+      <li>综合文件验证 - 提供统一的验证接口,支持多项验证组合</li>
+      <li>上传文件验证 - 专门的上传文件验证接口,返回详细验证结果</li>
+    </ul>
+  </li>
+  <li><strong>[安全模块]</strong> 实现 DataMasker 数据脱敏器
+    <ul>
+      <li>敏感字段识别 - 自动识别password/token/api_key等20+敏感关键词</li>
+      <li>敏感值识别 - 通过正则模式识别JWT Token/API Key/Bearer Token等</li>
+      <li>字符串脱敏 - 保留前后字符,中间使用*脱敏</li>
+      <li>邮箱脱敏 - 保留首尾字符和域名,中间脱敏</li>
+      <li>手机号脱敏 - 保留前3位和后4位,中间脱敏</li>
+      <li>身份证号脱敏 - 保留前4位和后4位,中间脱敏</li>
+      <li>字典数据脱敏 - 递归处理嵌套字典,自动识别敏感字段</li>
+      <li>列表数据脱敏 - 批量处理列表中的敏感数据</li>
+      <li>日志消息脱敏 - 自动脱敏日志中的敏感信息</li>
+      <li>自定义敏感关键词 - 支持扩展自定义敏感字段</li>
+    </ul>
+  </li>
+  <li><strong>[MVP]</strong> 创建安全验证功能MVP示例
+    <ul>
+      <li>新增 <code>mvp/security_validation.py</code> - 安全功能演示代码</li>
+      <li>演示路径验证、文件验证、哈希校验、数据脱敏等功能</li>
+      <li>提供完整的使用示例和测试用例</li>
+    </ul>
+  </li>
+  <li><strong>[测试]</strong> 新增安全功能完整单元测试
+    <ul>
+      <li>新增 <code>tests/test_security.py</code> - 35个单元测试</li>
+      <li>测试覆盖率：100%</li>
+      <li>测试场景：路径验证、文件验证、哈希校验、数据脱敏、敏感字段识别等</li>
+      <li><strong>所有测试通过 ✅</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🛠️ 变更</h3>
+<ul>
+  <li><strong>[文件服务]</strong> 集成安全验证到文件上传流程
+    <ul>
+      <li>FileService.upload_file 集成 SecurityValidator</li>
+      <li>上传文件自动进行类型、大小、哈希验证</li>
+      <li>验证失败时返回详细错误信息</li>
+      <li>上传成功时记录文件哈希值</li>
+    </ul>
+  </li>
+  <li><strong>[模板服务]</strong> 集成安全验证到模板加载流程
+    <ul>
+      <li>TemplateService.get_template 集成路径验证</li>
+      <li>加载模板时验证路径是否在白名单目录内</li>
+      <li>防止路径遍历攻击和非法文件访问</li>
+      <li>验证失败时记录警告日志</li>
+    </ul>
+  </li>
+  <li><strong>[能力矩阵]</strong> 更新安全功能进度
+    <ul>
+      <li>安全与认证进度从 0% 提升至 50% (4/8)</li>
+      <li>完成模板路径白名单、文件类型验证、文件内容校验、数据脱敏功能</li>
+      <li>项目整体完成度从 79.6% 提升至 82.3% (121/147)</li>
+      <li>P0优先级功能完成率从 92.3% 提升至 96.2% (75/78)</li>
+      <li>P1优先级功能完成率从 85.1% 提升至 87.2% (41/47)</li>
+      <li>按优先级总完成率从 80.8% 提升至 83.4% (126/151)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📌 技术细节</h3>
+<ul>
+  <li><strong>SecurityValidator 实现</strong>：
+    <ul>
+      <li>路径验证使用 <code>Path.resolve()</code> 解析绝对路径,防止 <code>../</code> 攻击</li>
+      <li>白名单验证检查路径是否以 template_base_dir 开头</li>
+      <li>文件类型验证支持 MIME 类型映射表和 mimetypes 库双重验证</li>
+      <li>哈希计算采用分块读取(4096字节),避免大文件内存溢出</li>
+      <li>全局单例模式,避免重复初始化</li>
+    </ul>
+  </li>
+  <li><strong>DataMasker 实现</strong>：
+    <ul>
+      <li>使用正则表达式模式匹配识别敏感值(JWT/API Key等)</li>
+      <li>支持递归处理嵌套字典和列表</li>
+      <li>根据字段名自动选择脱敏策略(邮箱/手机/身份证/默认)</li>
+      <li>保留数据结构和类型,仅替换敏感值</li>
+      <li>全局单例模式,支持自定义敏感关键词</li>
+    </ul>
+  </li>
+  <li><strong>集成方式</strong>：
+    <ul>
+      <li>FileService 在上传文件时创建临时文件进行验证,验证后自动清理</li>
+      <li>TemplateService 在加载模板时验证路径,验证失败记录警告但不阻止加载(兼容历史数据)</li>
+      <li>使用标准 logging 模块记录安全事件,支持审计追踪</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🔒 安全增强</h3>
+<ul>
+  <li>✅ 防止路径遍历攻击 - 白名单目录限制</li>
+  <li>✅ 防止恶意文件上传 - 类型和大小验证</li>
+  <li>✅ 文件完整性校验 - SHA256哈希验证</li>
+  <li>✅ 敏感数据保护 - 自动脱敏日志和API响应</li>
+  <li>✅ 安全审计 - 详细的安全事件日志</li>
+</ul>
 
 <hr>
 

@@ -5,6 +5,7 @@
 
 import logging
 import uuid
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -12,6 +13,7 @@ from fastapi import UploadFile
 
 from core.storage import FileStorage
 from core.service.i_file_service import IFileService
+from core.security.validator import get_security_validator
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +78,47 @@ class FileService(IFileService):
                 f"({max_size / 1024 / 1024:.1f}MB)"
             )
         
-        # 验证文件扩展名
+        # 【安全验证】使用SecurityValidator验证文件
+        validator = get_security_validator()
+        temp_file_path = None
+        
+        try:
+            # 创建临时文件用于安全验证
+            with tempfile.NamedTemporaryFile(
+                mode='wb',
+                suffix=Path(file.filename).suffix,
+                delete=False
+            ) as temp_file:
+                temp_file.write(content)
+                temp_file_path = temp_file.name
+            
+            # 执行安全验证（文件类型、大小）
+            validation_result = validator.validate_upload_file(
+                file_path=temp_file_path,
+                max_size=max_size
+            )
+            
+            if not validation_result["valid"]:
+                error_msg = "; ".join(validation_result["errors"])
+                logger.warning(f"文件上传安全验证失败: {error_msg}")
+                raise ValueError(f"文件验证失败: {error_msg}")
+            
+            # 记录文件哈希值
+            file_hash = validation_result["file_info"].get("hash", "")
+            logger.info(
+                f"文件 {file.filename} 安全验证通过 "
+                f"(大小: {file_size} bytes, 哈希: {file_hash[:16]}...)"
+            )
+            
+        finally:
+            # 清理临时文件
+            if temp_file_path and Path(temp_file_path).exists():
+                try:
+                    Path(temp_file_path).unlink()
+                except Exception as e:
+                    logger.warning(f"清理临时文件失败: {e}")
+        
+        # 验证文件扩展名（兼容性检查）
         file_ext = Path(file.filename).suffix.lower()
         if file_ext and file_ext not in self.ALLOWED_EXTENSIONS:
             logger.warning(
@@ -99,12 +141,13 @@ class FileService(IFileService):
             logger.error("文件上传失败: %s", exc, exc_info=True)
             raise RuntimeError(f"文件上传失败: {exc}") from exc
         
-        # 返回文件信息
+        # 返回文件信息（包含哈希值）
         return {
             "file_id": file_id,
             "file_name": file.filename,
             "file_path": file_path,
             "file_size": file_size,
+            "file_hash": validation_result["file_info"].get("hash", ""),
             "file_url": self.file_storage.get_file_url(file_id),
             "created_at": datetime.now(timezone.utc).isoformat(),
         }

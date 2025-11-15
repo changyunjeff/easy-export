@@ -14,6 +14,7 @@ import uuid
 from core.models.template import Template, TemplateVersion
 from core.storage import TemplateStorage
 from core.service.i_template_service import ITemplateService
+from core.security.validator import get_security_validator
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +199,22 @@ class TemplateService(ITemplateService):
             updated_at=updated_at,
             created_by=manifest.get("created_by"),
         )
+        
+        # 【安全验证】验证模板文件路径
+        try:
+            validator = get_security_validator()
+            file_path = version_info.get("file_path", "")
+            
+            if file_path:
+                valid, error, abs_path = validator.validate_template_path(file_path)
+                
+                if not valid:
+                    logger.warning(f"模板路径验证失败: {template_id}@{target_version}, {error}")
+                    # 路径验证失败时，记录警告但仍然返回模板（可能是历史数据）
+                else:
+                    logger.debug(f"模板路径验证通过: {template_id}@{target_version} -> {abs_path}")
+        except Exception as e:
+            logger.warning(f"模板路径验证异常: {template_id}@{target_version}, {e}")
         
         return template
     

@@ -1,7 +1,7 @@
 <div align="center">
-  <h1>VectorBD · 提交与贡献指南</h1>
+  <h1>FastExport · 提交与贡献指南</h1>
   <p style="margin-top:8px;color:#666;">
-    感谢你对 VectorBD 的关注与贡献！
+    感谢你对 FastExport 的关注与贡献！
   </p>
   <p>
     <a href="#发布说明--版本策略">发布策略</a> • <a href="#提交信息conventional-commits">提交规范</a> • <a href="#pr-规范">PR 规范</a> • <a href="#代码与目录规范python">代码规范</a> • <a href="#质量门禁最小">质量门禁</a>

@@ -220,6 +220,10 @@ def create_app() -> FastAPI:
 
     return app
 
+# 为测试和ASGI服务器暴露一个可直接导入的应用实例
+# 注意：FastAPI的重载/多进程模式下建议使用工厂函数，但测试场景直接导入更方便
+app = create_app()
+
 if __name__ == "__main__":
     # 先加载环境变量（包含MSYS2_BIN等配置）
     load_dotenv()

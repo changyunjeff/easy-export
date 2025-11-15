@@ -60,17 +60,17 @@ email:
     template_dir: "static/email_template"
 
 rate_limit:
-  enabled: true
-  requests_per_minute: 60    # 每分钟最大请求数
-  requests_per_hour: 1000    # 每小时最大请求数
-  requests_per_day: 10000   # 每天最大请求数
+  enabled: false
+  requests_per_minute: 600    # 每分钟最大请求数
+  requests_per_hour: 10000    # 每小时最大请求数
+  requests_per_day: 100000   # 每天最大请求数
   burst_size: 10             # 令牌桶突发大小
   key_prefix: "rate_limit"   # Redis键前缀
 
 ddos_protection:
-  enabled: true
-  max_requests_per_second: 10   # 每秒最大请求数
-  max_requests_per_minute: 100   # 每分钟最大请求数
+  enabled: false
+  max_requests_per_second: 100   # 每秒最大请求数
+  max_requests_per_minute: 1000   # 每分钟最大请求数
   block_duration: 3600          # 超过阈值后封禁时长（秒）
   whitelist_ips: []             # IP白名单
   blacklist_ips: []             # IP黑名单

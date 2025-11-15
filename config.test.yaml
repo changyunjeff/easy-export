@@ -60,7 +60,7 @@ email:
     template_dir: "static/email_template"
 
 rate_limit:
-  enabled: true
+  enabled: false
   requests_per_minute: 20    # 极端测试：每分钟仅允许2个请求（用于测试限流）
   requests_per_hour: 50      # 极端测试：每小时仅允许5个请求
   requests_per_day: 1000      # 极端测试：每天仅允许10个请求
@@ -68,7 +68,7 @@ rate_limit:
   key_prefix: "test_rate_limit"   # Redis键前缀（测试专用）
 
 ddos_protection:
-  enabled: true
+  enabled: false
   max_requests_per_second: 100   # 极端测试：每秒仅允许1个请求（用于测试DDoS防护）
   max_requests_per_minute: 300   # 极端测试：每分钟仅允许3个请求
   block_duration: 60           # 极端测试：封禁时长60秒（快速测试）

@@ -52,6 +52,12 @@
     <li><strong>修复 TemplateService.get_template - 增强 datetime 字段处理，支持字符串与对象混合场景</strong>。</li>
     <li><strong>实现 TemplateStorage.list_templates - 新增列出所有模板 ID 的方法，支持服务层分页查询</strong>。</li>
     <li><strong>优化 TemplateService 异常处理 - delete_template 和 create_version 增加完善的异常抛出逻辑</strong>。</li>
+    <li><strong>完成导出服务核心功能 - 实现完整的单文档导出流程、任务状态跟踪与报告生成</strong>。</li>
+    <li><strong>实现导出服务任务状态管理 - 基于CacheStorage实现任务状态持久化与查询</strong>。</li>
+    <li><strong>实现导出接口文件下载功能 - 支持多种文件格式的内容类型识别与下载</strong>。</li>
+    <li><strong>完成模板管理API全部8个接口 - 创建、获取、列表、更新、删除、版本管理、下载接口全部实现</strong>。</li>
+    <li><strong>新增 <code>tests/test_export_service_v2.py</code> - 导出服务完整单元测试覆盖</strong>。</li>
+    <li><strong>新增 <code>tests/test_templates_api.py</code> - 模板管理API集成测试，覆盖所有端点</strong>。</li>
   </ul>
 </div>
 
@@ -68,6 +74,11 @@
     <li><strong>项目整体完成度从 39.4% 提升至 43.1%，P0 核心功能完成率从 48.0% 提升至 54.7%</strong>。</li>
     <li><strong>重构 main.py - 移除硬编码的 MSYS2 路径，改用环境变量配置，提升部署灵活性</strong>。</li>
     <li><strong>增强应用启动流程 - 集成 GTK3 检查到生命周期管理，优雅处理依赖检测失败场景</strong>。</li>
+    <li><strong>更新ExportTask模型 - 新增message、file_url字段，error字段改为字符串类型</strong>。</li>
+    <li><strong>服务层进度从21.2%提升至33.3%，API接口层进度从50%提升至95%</strong>。</li>
+    <li><strong>项目整体完成度提升至59.9%，P0核心功能完成率提升至77.3%</strong>。</li>
+    <li><strong>测试覆盖率从16.7%提升至66.7%，新增导出服务和模板API完整测试</strong>。</li>
+    <li><strong>里程碑M5（API接口实现）完成度提升至95%，接近完成</strong>。</li>
   </ul>
 </div>
 

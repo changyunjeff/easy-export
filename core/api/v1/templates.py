@@ -39,7 +39,7 @@ class TemplateListResponse(BaseModel):
     items: List[dict] = Field(..., description="模板列表")
 
 
-@template_router.post("", response_model=HttpResponse)
+@template_router.post("", response_model=OkWithDetail)
 async def create_template(
     file: UploadFile = File(..., description="模板文件"),
     name: str = Form(..., description="模板名称"),
@@ -95,7 +95,7 @@ async def create_template(
         raise HTTPException(status_code=500, detail="服务器内部错误")
 
 
-@template_router.get("", response_model=HttpResponse)
+@template_router.get("", response_model=OkWithDetail)
 async def list_templates(
     page: int = Query(default=1, ge=1, description="页码"),
     page_size: int = Query(default=20, ge=1, le=100, description="每页数量"),
@@ -131,7 +131,7 @@ async def list_templates(
         raise HTTPException(status_code=500, detail="查询失败")
 
 
-@template_router.get("/{template_id}", response_model=HttpResponse)
+@template_router.get("/{template_id}", response_model=OkWithDetail)
 async def get_template(
     template_id: str = PathParam(..., description="模板ID"),
     version: Optional[str] = Query(default=None, description="版本号（可选，不传返回最新版本）"),
@@ -169,7 +169,7 @@ async def get_template(
         raise HTTPException(status_code=500, detail="查询失败")
 
 
-@template_router.delete("/{template_id}", response_model=HttpResponse)
+@template_router.delete("/{template_id}", response_model=OkWithDetail)
 async def delete_template(
     template_id: str = PathParam(..., description="模板ID"),
     version: Optional[str] = Query(default=None, description="版本号（可选，不传删除所有版本）"),
@@ -198,7 +198,7 @@ async def delete_template(
         raise HTTPException(status_code=500, detail="删除失败")
 
 
-@template_router.get("/{template_id}/versions", response_model=HttpResponse)
+@template_router.get("/{template_id}/versions", response_model=OkWithDetail)
 async def list_versions(
     template_id: str = PathParam(..., description="模板ID"),
     page: int = Query(default=1, ge=1, description="页码"),
@@ -223,7 +223,7 @@ async def list_versions(
         raise HTTPException(status_code=500, detail="查询失败")
 
 
-@template_router.post("/{template_id}/versions", response_model=HttpResponse)
+@template_router.post("/{template_id}/versions", response_model=OkWithDetail)
 async def create_version(
     template_id: str = PathParam(..., description="模板ID"),
     file: UploadFile = File(..., description="模板文件"),
@@ -289,9 +289,17 @@ async def download_template(
         # 下载文件内容
         file_content = template_service.download_template(template_id, version)
         
-        # 设置文件名
-        filename = f"{template.name}_{template.version}.{template.format}"
-        
+        # 设置文件名（原始名可能包含非 ASCII 字符，放在 RFC 5987 的 filename* 中）
+        original_filename = f"{template.name}_{template.version}.{template.format}"
+
+        # 生成 ASCII 安全的回退文件名用于 filename 参数
+        # 仅保留字母、数字、点、下划线和中划线，其余替换为下划线
+        import re
+        from urllib.parse import quote
+        ascii_safe = re.sub(r"[^A-Za-z0-9._-]", "_", original_filename)
+        if not ascii_safe or ascii_safe.strip("._-") == "":
+            ascii_safe = f"file_{template.version}.{template.format}"
+
         # 设置Content-Type
         content_type = {
             "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -299,12 +307,18 @@ async def download_template(
             "htm": "text/html",
         }.get(template.format, "application/octet-stream")
         
+        # 构造 Content-Disposition，包含 ASCII 回退与 RFC 5987 UTF-8 名称
+        content_disposition = (
+            f"attachment; filename=\"{ascii_safe}\"; "
+            f"filename*=UTF-8''{quote(original_filename)}"
+        )
+        
         # 返回文件流
         return Response(
             content=file_content,
-            media_type=content_type,
             headers={
-                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Type": content_type,
+                "Content-Disposition": content_disposition,
                 "Content-Length": str(len(file_content)),
             }
         )
@@ -316,7 +330,7 @@ async def download_template(
         raise HTTPException(status_code=500, detail="下载失败")
 
 
-@template_router.put("/{template_id}", response_model=HttpResponse)
+@template_router.put("/{template_id}", response_model=OkWithDetail)
 async def update_template(
     template_id: str = PathParam(..., description="模板ID"),
     name: Optional[str] = Form(default=None, description="模板名称"),

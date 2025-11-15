@@ -64,6 +64,12 @@
     <li><strong>新增批量任务状态查询接口 - GET /api/v1/export/batch/{batch_task_id}，支持整体进度和子任务详情查询</strong>。</li>
     <li><strong>实现批量任务汇总统计 - 支持文件大小、页数、格式分布、平均耗时等统计信息</strong>。</li>
     <li><strong>新增 <code>tests/test_batch_service.py</code> - 批量处理服务完整单元测试，覆盖所有核心功能</strong>。</li>
+    <li><strong>实现 ValidateService 校验服务 - 支持必填字段检查、数据对齐检查、链接有效性验证和样式一致性检查</strong>。</li>
+    <li><strong>实现校验API接口 - POST /api/v1/validate，集成ValidateService提供文档校验功能</strong>。</li>
+    <li><strong>新增校验功能MVP - <code>mvp/validate_document.py</code> 提供命令行文档校验工具与完整参考实现</strong>。</li>
+    <li><strong>新增 <code>tests/test_validate_mvp.py</code> - 校验MVP单元测试，8个测试全部通过</strong>。</li>
+    <li><strong>新增 <code>tests/test_validate_service.py</code> - ValidateService完整单元测试，19个测试全部通过</strong>。</li>
+    <li><strong>新增 <code>mvp/validation_rules.json</code> - 校验规则示例文件，定义必填字段和检查规则</strong>。</li>
   </ul>
 </div>
 
@@ -90,6 +96,12 @@
     <li><strong>项目整体完成度提升至65.2%，P0核心功能完成率提升至86.8%</strong>。</li>
     <li><strong>测试覆盖率从66.7%提升至83.3%，新增批量处理服务单元测试</strong>。</li>
     <li><strong>里程碑M6（测试完成）完成度达到83.3%，接近完成</strong>。</li>
+    <li><strong>校验服务进度从0%提升至100% - 完成必填字段、数据对齐、链接和样式检查全部功能</strong>。</li>
+    <li><strong>API接口层进度从95.2%提升至100% - 校验接口完成，所有API接口已实现</strong>。</li>
+    <li><strong>服务层进度从51.5%提升至66.7% - 校验服务核心功能完成并通过27个单元测试</strong>。</li>
+    <li><strong>项目整体完成度提升至69.6%，P0核心功能完成率提升至90.8%</strong>。</li>
+    <li><strong>里程碑M5（API接口实现）完成度达到100%，已完成</strong>。</li>
+    <li><strong>MVP目录新增validate_document.py，提供文档校验命令行工具参考实现</strong>。</li>
   </ul>
 </div>
 

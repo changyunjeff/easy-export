@@ -1,0 +1,12 @@
+{
+  "required_fields": [
+    "张三",
+    "订单号",
+    "2024"
+  ],
+  "expected_table_rows": 3,
+  "check_links": false,
+  "check_style": true,
+  "link_timeout_sec": 3
+}
+

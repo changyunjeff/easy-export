@@ -126,7 +126,101 @@ python mvp/create_word_template.py mvp/example_template.docx
 
 ---
 
-## 3. 图表快速导出 (chart_export.py)
+## 3. 文档校验 (validate_document.py)
+
+### 功能
+- 读取生成的文档（HTML/Word）
+- 检查必填字段是否存在
+- 检查表格行数是否匹配
+- 检查链接有效性（可选）
+- 检查样式一致性（可选）
+- 生成详细的校验报告
+
+### 安装依赖
+```bash
+pip install python-docx requests
+```
+
+### 使用方法
+
+#### 命令行方式
+```bash
+# 基本校验
+python mvp/validate_document.py static/outputs/test.html mvp/validation_rules.json
+
+# 详细输出
+python mvp/validate_document.py static/outputs/test.html mvp/validation_rules.json --verbose
+
+# 保存校验报告
+python mvp/validate_document.py static/outputs/test.html mvp/validation_rules.json --output report.json
+```
+
+#### 代码方式
+```python
+from mvp.validate_document import DocumentValidator
+
+validator = DocumentValidator()
+rules = {
+    "required_fields": ["张三", "订单号", "2024"],
+    "expected_table_rows": 3,
+    "check_links": True,
+    "check_style": True,
+    "link_timeout_sec": 3
+}
+
+result = validator.validate("output.html", rules)
+print(f"校验结果: {'通过' if result.passed else '失败'}")
+print(f"错误数: {len(result.errors)}")
+print(f"警告数: {len(result.warnings)}")
+```
+
+### 校验规则文件 (validation_rules.json)
+
+```json
+{
+  "required_fields": ["张三", "订单号", "2024"],
+  "expected_table_rows": 3,
+  "check_links": false,
+  "check_style": true,
+  "link_timeout_sec": 3
+}
+```
+
+**规则说明**：
+- `required_fields`: 必填字段列表，检查文档中是否包含这些字段
+- `expected_table_rows`: 预期表格行数（不包括表头）
+- `check_links`: 是否检查链接有效性（需要网络连接）
+- `check_style`: 是否检查样式一致性（字体、颜色等）
+- `link_timeout_sec`: 链接检查超时时间（秒）
+
+### 校验报告示例
+
+```json
+{
+  "passed": true,
+  "errors": [],
+  "warnings": [
+    {
+      "type": "slow_link",
+      "message": "链接响应较慢: https://example.com (2.5秒)",
+      "detail": {
+        "url": "https://example.com",
+        "elapsed": 2.5
+      }
+    }
+  ],
+  "summary": {
+    "total_checks": 1,
+    "passed_checks": 0,
+    "failed_checks": 0,
+    "warning_checks": 1
+  }
+}
+```
+
+---
+
+## 4. 图表快速导出 (chart_export.py)
 
 ### 功能
 - 读取包含 `data/config/type` 的 JSON 文件
@@ -175,6 +269,7 @@ python mvp/chart_export.py mvp/chart_sample.json --type bar
 - `example_data.json` - HTML模板示例数据
 - `word_example_data.json` - Word模板示例数据
 - `chart_sample.json` - 图表生成示例数据
+- `validation_rules.json` - 文档校验规则示例
 
 ---
 
@@ -189,6 +284,7 @@ python mvp/chart_export.py mvp/chart_sample.json --type bar
    - HTML导出需要：`jinja2`
    - Word导出需要：`docxtpl`、`python-docx`、`docx2pdf`
    - `docx2pdf` 需要系统安装 LibreOffice 或 Microsoft Word
+   - 文档校验需要：`python-docx`、`requests`（链接检查可选）
 5. **模板路径**：可以使用相对路径或绝对路径
 6. **PDF转换**：Word转PDF需要系统安装LibreOffice或Microsoft Word
 

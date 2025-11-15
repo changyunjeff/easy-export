@@ -200,6 +200,25 @@ class TemplateStorage:
         hash_value = hash_obj.hexdigest()
         return f"sha256:{hash_value}"
 
+    def list_templates(self) -> List[str]:
+        """
+        列出所有模板ID
+
+        Returns:
+            模板ID列表
+        """
+        if not self.base_path.exists():
+            return []
+        
+        template_ids = []
+        for item in self.base_path.iterdir():
+            if item.is_dir():
+                manifest_path = item / self.MANIFEST_FILENAME
+                if manifest_path.exists():
+                    template_ids.append(item.name)
+        
+        return template_ids
+
     def list_versions(self, template_id: str) -> List[str]:
         """
         列出模板的所有版本

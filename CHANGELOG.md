@@ -58,6 +58,12 @@
     <li><strong>完成模板管理API全部8个接口 - 创建、获取、列表、更新、删除、版本管理、下载接口全部实现</strong>。</li>
     <li><strong>新增 <code>tests/test_export_service_v2.py</code> - 导出服务完整单元测试覆盖</strong>。</li>
     <li><strong>新增 <code>tests/test_templates_api.py</code> - 模板管理API集成测试，覆盖所有端点</strong>。</li>
+    <li><strong>实现 BatchService 批量处理服务 - 支持批量任务创建、状态查询、进度计算和结果汇总</strong>。</li>
+    <li><strong>扩展 CacheStorage 批量任务缓存 - 新增 cache_batch_task、get_batch_task 和 delete_batch_task 方法</strong>。</li>
+    <li><strong>完善批量导出API - 集成 BatchService，返回 batch_task_id 用于批量任务跟踪</strong>。</li>
+    <li><strong>新增批量任务状态查询接口 - GET /api/v1/export/batch/{batch_task_id}，支持整体进度和子任务详情查询</strong>。</li>
+    <li><strong>实现批量任务汇总统计 - 支持文件大小、页数、格式分布、平均耗时等统计信息</strong>。</li>
+    <li><strong>新增 <code>tests/test_batch_service.py</code> - 批量处理服务完整单元测试，覆盖所有核心功能</strong>。</li>
   </ul>
 </div>
 
@@ -79,6 +85,11 @@
     <li><strong>项目整体完成度提升至59.9%，P0核心功能完成率提升至77.3%</strong>。</li>
     <li><strong>测试覆盖率从16.7%提升至66.7%，新增导出服务和模板API完整测试</strong>。</li>
     <li><strong>里程碑M5（API接口实现）完成度提升至95%，接近完成</strong>。</li>
+    <li><strong>存储层完成度达到100% - M2里程碑已完成，包括批量任务缓存功能</strong>。</li>
+    <li><strong>服务层进度从33.3%提升至51.5% - 批量处理服务核心功能完成</strong>。</li>
+    <li><strong>项目整体完成度提升至65.2%，P0核心功能完成率提升至86.8%</strong>。</li>
+    <li><strong>测试覆盖率从66.7%提升至83.3%，新增批量处理服务单元测试</strong>。</li>
+    <li><strong>里程碑M6（测试完成）完成度达到83.3%，接近完成</strong>。</li>
   </ul>
 </div>
 

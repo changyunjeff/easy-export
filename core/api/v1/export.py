@@ -13,11 +13,13 @@ from core.utils import get_api_prefix
 from core.models.export import ExportRequest
 from core.rocketmq import get_rocketmq_manager, RocketMQException
 from core.service.export_service import ExportService
+from core.service.batch_service import BatchService
 
 logger = logging.getLogger(__name__)
 
-# 初始化导出服务
+# 初始化导出服务和批量处理服务
 export_service = ExportService()
+batch_service = BatchService()
 
 export_router = APIRouter(
     prefix=f"{get_api_prefix()}/export",
@@ -155,10 +157,21 @@ async def batch_export(request: BatchExportRequest):
             priority=0
         )
 
-        logger.info(f"Batch export tasks submitted to queue: {len(task_ids)} tasks")
+        # 创建批量任务记录
+        batch_task = await batch_service.create_batch_task(
+            task_ids=task_ids,
+            metadata={
+                "output_format": request.output_format or "docx",
+                "concurrency": request.concurrency,
+                "enable_validation": request.enable_validation,
+            }
+        )
+
+        logger.info(f"Batch export tasks submitted to queue: {len(task_ids)} tasks, batch_id: {batch_task.task_id}")
 
         return success_response(
             data={
+                "batch_task_id": batch_task.task_id,
                 "task_ids": task_ids,
                 "total_tasks": len(task_ids),
                 "output_format": request.output_format or "docx",
@@ -245,6 +258,55 @@ async def get_task_status(
         return error_response(
             message=f"获取任务状态失败: {str(e)}",
             error_code="TASK_STATUS_QUERY_FAILED"
+        )
+
+
+@export_router.get("/batch/{batch_task_id}", response_model=HttpResponse)
+async def get_batch_task_status(
+    batch_task_id: str = PathParam(..., description="批量任务ID"),
+):
+    """
+    查询批量任务状态
+    
+    - **batch_task_id**: 批量任务ID
+    
+    返回批量任务的整体状态、进度和子任务详情
+    """
+    try:
+        # 查询批量任务状态
+        batch_task = batch_service.get_batch_status(batch_task_id)
+        
+        # 构造响应数据
+        batch_data = {
+            "batch_task_id": batch_task.task_id,
+            "total": batch_task.total,
+            "success": batch_task.success,
+            "failed": batch_task.failed,
+            "status": batch_task.status.value,
+            "progress": batch_task.progress,
+            "outputs": batch_task.outputs,
+            "summary": batch_task.summary,
+            "created_at": batch_task.created_at.isoformat() if batch_task.created_at else None,
+            "completed_at": batch_task.completed_at.isoformat() if batch_task.completed_at else None,
+        }
+        
+        return success_response(
+            data=batch_data,
+            message="获取批量任务状态成功"
+        )
+    
+    except FileNotFoundError as e:
+        logger.warning(f"Batch task not found: {batch_task_id}")
+        return error_response(
+            message=f"批量任务不存在: {batch_task_id}",
+            error_code="BATCH_TASK_NOT_FOUND"
+        )
+    
+    except Exception as e:
+        logger.error(f"Error getting batch task status for {batch_task_id}: {str(e)}")
+        return error_response(
+            message=f"获取批量任务状态失败: {str(e)}",
+            error_code="BATCH_TASK_STATUS_QUERY_FAILED"
         )
 
 

@@ -10,7 +10,7 @@ import binascii
 import logging
 from copy import deepcopy
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 
 from core.redis import RedisClient, get_redis_client
 
@@ -27,6 +27,9 @@ class CacheStorage:
     TEMPLATE_METADATA_PREFIX = "template:metadata:"
     TASK_STATUS_PREFIX = "task:status:"
     BATCH_TASK_PREFIX = "batch:task:"
+    STATS_PREFIX = "stats:"
+    STATS_COUNTER_KEY = "stats:counters"
+    STATS_TEMPLATE_USAGE_PREFIX = "stats:template:"
 
     def __init__(self, redis_client: Optional[RedisClient] = None):
         """
@@ -380,4 +383,230 @@ class CacheStorage:
 
     def _utcnow(self) -> str:
         return datetime.now(timezone.utc).isoformat()
+
+    # ==================== 统计数据 ====================
+
+    def record_export_task(
+        self,
+        task_id: str,
+        template_id: str,
+        output_format: str,
+        file_size: int,
+        pages: int,
+        elapsed_ms: int,
+        success: bool,
+        ttl: Union[int, float, timedelta] = 2592000,  # 30天
+    ) -> bool:
+        """
+        记录导出任务统计数据
+
+        Args:
+            task_id: 任务ID
+            template_id: 模板ID
+            output_format: 输出格式
+            file_size: 文件大小（字节）
+            pages: 页数
+            elapsed_ms: 耗时（毫秒）
+            success: 是否成功
+            ttl: 数据保留时间（秒或 timedelta），默认30天
+
+        Returns:
+            是否记录成功
+        """
+        try:
+            # 记录任务详情
+            task_key = f"{self.STATS_PREFIX}task:{task_id}"
+            task_data = {
+                "task_id": task_id,
+                "template_id": template_id,
+                "output_format": output_format,
+                "file_size": file_size,
+                "pages": pages,
+                "elapsed_ms": elapsed_ms,
+                "success": success,
+                "timestamp": self._utcnow(),
+            }
+            ttl_seconds = self._normalize_ttl(ttl)
+            self._client.set(task_key, task_data, ex=ttl_seconds)
+
+            # 更新统计计数器
+            self._client.hincrby(self.STATS_COUNTER_KEY, "total_tasks", 1)
+            if success:
+                self._client.hincrby(self.STATS_COUNTER_KEY, "success_tasks", 1)
+            else:
+                self._client.hincrby(self.STATS_COUNTER_KEY, "failed_tasks", 1)
+
+            # 更新格式分布计数
+            self._client.hincrby(self.STATS_COUNTER_KEY, f"format:{output_format}", 1)
+
+            # 更新模板使用统计
+            template_key = f"{self.STATS_TEMPLATE_USAGE_PREFIX}{template_id}"
+            self._client.hincrby(template_key, "usage_count", 1)
+            self._client.set(f"{template_key}:name", template_id, ex=ttl_seconds)
+
+            # 累加总页数和总文件大小
+            self._client.hincrby(self.STATS_COUNTER_KEY, "total_pages", pages)
+            self._client.hincrby(self.STATS_COUNTER_KEY, "total_file_size", file_size)
+
+            # 累加总耗时（用于计算平均值）
+            self._client.hincrby(self.STATS_COUNTER_KEY, "total_elapsed_ms", elapsed_ms)
+
+            logger.debug(f"Recorded export task stats: {task_id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to record export task stats: {e}")
+            return False
+
+    def get_export_stats(
+        self,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+    ) -> Dict[str, Any]:
+        """
+        获取导出统计数据
+
+        Args:
+            start_date: 开始日期（暂不支持过滤）
+            end_date: 结束日期（暂不支持过滤）
+
+        Returns:
+            统计数据字典
+        """
+        try:
+            counters = self._client.hgetall(self.STATS_COUNTER_KEY) or {}
+
+            # 提取基础统计
+            total_tasks = int(counters.get("total_tasks", 0))
+            success_tasks = int(counters.get("success_tasks", 0))
+            failed_tasks = int(counters.get("failed_tasks", 0))
+            total_pages = int(counters.get("total_pages", 0))
+            total_file_size = int(counters.get("total_file_size", 0))
+            total_elapsed_ms = int(counters.get("total_elapsed_ms", 0))
+
+            # 计算成功率
+            success_rate = success_tasks / total_tasks if total_tasks > 0 else 0.0
+
+            # 计算平均耗时
+            avg_elapsed_ms = total_elapsed_ms / total_tasks if total_tasks > 0 else 0.0
+
+            # 提取格式分布
+            format_distribution = {}
+            for key, value in counters.items():
+                if key.startswith("format:"):
+                    format_name = key.replace("format:", "")
+                    format_distribution[format_name] = int(value)
+
+            return {
+                "total_tasks": total_tasks,
+                "success_tasks": success_tasks,
+                "failed_tasks": failed_tasks,
+                "success_rate": round(success_rate, 4),
+                "total_pages": total_pages,
+                "total_file_size": total_file_size,
+                "avg_elapsed_ms": round(avg_elapsed_ms, 2),
+                "format_distribution": format_distribution,
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to get export stats: {e}")
+            return {
+                "total_tasks": 0,
+                "success_tasks": 0,
+                "failed_tasks": 0,
+                "success_rate": 0.0,
+                "total_pages": 0,
+                "total_file_size": 0,
+                "avg_elapsed_ms": 0.0,
+                "format_distribution": {},
+            }
+
+    def get_template_usage_stats(
+        self,
+        template_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        获取模板使用统计
+
+        Args:
+            template_id: 模板ID（可选，如果指定则只返回该模板的统计）
+
+        Returns:
+            模板使用统计列表
+        """
+        try:
+            if template_id:
+                # 查询特定模板
+                template_key = f"{self.STATS_TEMPLATE_USAGE_PREFIX}{template_id}"
+                usage_count = self._client.hget(template_key, "usage_count")
+                if usage_count:
+                    return [
+                        {
+                            "template_id": template_id,
+                            "template_name": template_id,
+                            "usage_count": int(usage_count),
+                        }
+                    ]
+                return []
+
+            # 查询所有模板
+            pattern = f"{self.STATS_TEMPLATE_USAGE_PREFIX}*"
+            keys = self._client.keys(pattern)
+            
+            template_stats = []
+            for key in keys:
+                if isinstance(key, bytes):
+                    key = key.decode('utf-8')
+                
+                # 跳过name键
+                if key.endswith(":name"):
+                    continue
+                
+                template_id = key.replace(self.STATS_TEMPLATE_USAGE_PREFIX, "")
+                usage_count = self._client.hget(key, "usage_count")
+                
+                if usage_count:
+                    template_stats.append({
+                        "template_id": template_id,
+                        "template_name": template_id,
+                        "usage_count": int(usage_count),
+                    })
+
+            # 按使用次数降序排序
+            template_stats.sort(key=lambda x: x["usage_count"], reverse=True)
+            return template_stats
+
+        except Exception as e:
+            logger.error(f"Failed to get template usage stats: {e}")
+            return []
+
+    def reset_stats(self) -> bool:
+        """
+        重置所有统计数据（用于测试）
+
+        Returns:
+            是否重置成功
+        """
+        try:
+            # 删除计数器
+            self._client.delete(self.STATS_COUNTER_KEY)
+            
+            # 删除所有模板统计
+            pattern = f"{self.STATS_TEMPLATE_USAGE_PREFIX}*"
+            keys = self._client.keys(pattern)
+            if keys:
+                self._client.delete(*keys)
+            
+            # 删除所有任务统计
+            pattern = f"{self.STATS_PREFIX}task:*"
+            keys = self._client.keys(pattern)
+            if keys:
+                self._client.delete(*keys)
+            
+            logger.info("Stats reset successfully")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to reset stats: {e}")
+            return False
 

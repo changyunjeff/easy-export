@@ -296,6 +296,37 @@ class RedisClient(BaseClient):
             logger.error(f"Redis hdel error: {name} - {e}")
             raise
     
+    def hincrby(self, name: str, key: str, amount: int = 1) -> int:
+        """
+        增加哈希字段的值（原子操作）
+        
+        Args:
+            name: 哈希表名
+            key: 字段名
+            amount: 增加的数量，默认为1
+        
+        Returns:
+            增加后的值
+        """
+        try:
+            # 如果底层支持hincrby方法（Redis或MemoryStore）
+            if hasattr(self._client, 'hincrby'):
+                return self._client.hincrby(name, key, amount)
+            else:
+                # 回退方案：使用hget/hset（非原子操作，但可用）
+                current = self.hget(name, key, 0)
+                if not isinstance(current, int):
+                    try:
+                        current = int(current)
+                    except (ValueError, TypeError):
+                        current = 0
+                new_value = current + amount
+                self.hset(name, key, new_value)
+                return new_value
+        except Exception as e:
+            logger.error(f"Redis hincrby error: {name}.{key} - {e}")
+            raise
+    
     # ==================== 列表操作 ====================
     
     def lpush(self, name: str, *values: Any) -> int:

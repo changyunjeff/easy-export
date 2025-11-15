@@ -17,10 +17,155 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.3">v0.1.3 — 2025-11-15</a></li>
+    <li><a href="#v0.1.2">v0.1.2 — 2025-11-15</a></li>
     <li><a href="#v0.1.1">v0.1.1 — 2025-11-15</a></li>
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.3">v0.1.3 <small style="color:#888;font-weight:normal;">2025‑11‑15</small></h2>
+
+<blockquote>
+  <p><strong>能力矩阵修正与进度同步</strong>：修正能力矩阵中的重复项和不一致问题,同步实际实现进度。</p>
+</blockquote>
+
+<h3>🛠️ 变更</h3>
+<ul>
+  <li><strong>[能力矩阵]</strong> 修正重复项和进度统计
+    <ul>
+      <li>修正基础设施层健康检查状态 - 从"未开始"更新为"已完成",健康检查已在v0.1.1实现</li>
+      <li>修正性能优化章节重复项 - 图表缓存、模板元数据缓存、任务状态缓存已在核心引擎层和存储层实现</li>
+      <li>基础设施层进度从 77.8% 提升至 88.9% (8/9)</li>
+      <li>性能优化进度从 0% 提升至 42.9% (3/7),缓存功能已完成</li>
+      <li>部署与运维进度保持 28.6% (2/7),健康检查已完成</li>
+      <li>项目整体完成度从 76.9% 提升至 79.6% (117/147)</li>
+      <li>P1优先级功能完成率从 76.6% 提升至 85.1% (40/47)</li>
+      <li>按优先级总完成率从 78.1% 提升至 80.8% (122/151)</li>
+      <li>里程碑M1（基础设施搭建）从 77.8% 提升至 88.9%,状态从"进行中"更新为"接近完成"</li>
+      <li>里程碑M7（部署就绪）从 14.3% 提升至 28.6%,状态从"未开始"更新为"进行中"</li>
+    </ul>
+  </li>
+  <li><strong>[文档]</strong> 能力矩阵版本更新
+    <ul>
+      <li>文档版本从 v1.6 更新至 v1.7</li>
+      <li>明确标注各项功能的实际实现位置</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📌 修正说明</h3>
+<ul>
+  <li><strong>健康检查功能</strong>：
+    <ul>
+      <li>已在 v0.1.1 实现 <code>core/api/v1/health.py</code></li>
+      <li>提供 /health、/health/live、/health/ready 三个端点</li>
+      <li>支持 Redis、RocketMQ、文件系统健康检查</li>
+      <li>支持 Kubernetes 存活探针和就绪探针</li>
+    </ul>
+  </li>
+  <li><strong>缓存功能</strong>：
+    <ul>
+      <li><strong>图表缓存</strong>：已在 <code>core/engine/chart.py</code> 的 ChartGenerator 中实现</li>
+      <li><strong>模板元数据缓存</strong>：已在 <code>core/storage/cache_storage.py</code> 中实现 cache_template_metadata 方法</li>
+      <li><strong>任务状态缓存</strong>：已在 <code>core/storage/cache_storage.py</code> 中实现 cache_task_status 方法</li>
+      <li>所有缓存均支持 Redis 存储和内存降级</li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h2 id="v0.1.2">v0.1.2 <small style="color:#888;font-weight:normal;">2025‑11‑15</small></h2>
+
+<blockquote>
+  <p><strong>统计服务功能</strong>：实现完整的统计服务，支持导出统计、性能统计和模板使用统计。</p>
+</blockquote>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[存储层]</strong> 扩展 CacheStorage 添加统计数据存储功能
+    <ul>
+      <li>新增 <code>record_export_task</code> 方法记录导出任务统计数据</li>
+      <li>新增 <code>get_export_stats</code> 方法获取导出统计</li>
+      <li>新增 <code>get_template_usage_stats</code> 方法获取模板使用统计</li>
+      <li>新增 <code>reset_stats</code> 方法重置统计数据</li>
+      <li>支持统计总任务数、成功率、平均耗时、文件大小、页数、格式分布等</li>
+    </ul>
+  </li>
+  <li><strong>[服务层]</strong> 实现 StatsService 完整功能
+    <ul>
+      <li>实现导出统计功能 - 统计总任务数、成功率、失败任务数</li>
+      <li>实现性能统计功能 - 统计平均耗时、总页数、总文件大小</li>
+      <li>实现模板使用统计功能 - 统计模板使用次数、按使用次数排序</li>
+      <li>实现格式分布统计功能 - 统计各格式的导出数量</li>
+      <li>支持基于 Redis/内存的统计数据存储与查询</li>
+    </ul>
+  </li>
+  <li><strong>[API接口]</strong> 新增统计接口
+    <ul>
+      <li><code>GET /api/v1/stats/export</code> - 获取导出统计（支持日期范围和模板ID筛选）</li>
+      <li><code>GET /api/v1/stats/performance</code> - 获取性能统计</li>
+      <li><code>GET /api/v1/stats/templates</code> - 获取模板使用统计（支持查询特定模板或全部模板）</li>
+    </ul>
+  </li>
+  <li><strong>[Redis客户端]</strong> 添加 <code>hincrby</code> 方法
+    <ul>
+      <li>在 RedisClient 中添加 <code>hincrby</code> 方法支持哈希字段原子递增</li>
+      <li>在 MemoryStore 中添加 <code>hincrby</code> 方法支持内存存储回退</li>
+      <li>支持统计计数器的原子更新操作</li>
+    </ul>
+  </li>
+  <li><strong>[测试]</strong> 新增统计服务完整单元测试
+    <ul>
+      <li>新增 <code>tests/test_stats_service.py</code> - 21个单元测试</li>
+      <li>测试覆盖率：100%</li>
+      <li>测试场景：记录任务、获取统计、模板使用统计、成功率计算、格式分布等</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🛠️ 变更</h3>
+<ul>
+  <li><strong>[导出服务]</strong> 集成统计记录功能
+    <ul>
+      <li>ExportService 在导出任务完成时自动记录统计数据</li>
+      <li>记录任务ID、模板ID、输出格式、文件大小、页数、耗时和成功状态</li>
+      <li>支持成功和失败任务的统计记录</li>
+    </ul>
+  </li>
+  <li><strong>[能力矩阵]</strong> 更新统计服务进度
+    <ul>
+      <li>统计服务进度从 0% 提升至 100%</li>
+      <li>服务层总进度从 75.8% 提升至 87.9%</li>
+      <li>API接口层总进度保持 100%，新增3个统计接口</li>
+      <li>项目整体完成度从 74.3% 提升至 76.9%</li>
+      <li>P1优先级功能完成率从 68.2% 提升至 76.6%</li>
+      <li>里程碑M4（服务层实现）完成度从 66.7% 提升至 87.9%，接近完成</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📌 技术细节</h3>
+<ul>
+  <li><strong>统计数据存储</strong>：
+    <ul>
+      <li>使用 Redis 哈希表存储统计计数器（支持内存回退）</li>
+      <li>统计数据默认保留30天</li>
+      <li>支持原子操作，确保并发安全</li>
+    </ul>
+  </li>
+  <li><strong>统计维度</strong>：
+    <ul>
+      <li>总体统计：总任务数、成功/失败数、成功率</li>
+      <li>性能统计：平均耗时、总页数、总文件大小</li>
+      <li>格式分布：各格式（PDF/DOCX/HTML）的导出数量</li>
+      <li>模板使用：各模板的使用次数，按使用频率排序</li>
+    </ul>
+  </li>
+</ul>
 
 <hr>
 

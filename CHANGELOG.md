@@ -17,6 +17,7 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.9">v0.1.9 — 2025-11-16</a></li>
     <li><a href="#v0.1.8">v0.1.8 — 2025-11-16</a></li>
     <li><a href="#v0.1.7">v0.1.7 — 2025-11-16</a></li>
     <li><a href="#v0.1.6">v0.1.6 — 2025-11-16</a></li>
@@ -28,6 +29,153 @@
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.9">v0.1.9 <small style="color:#888;font-weight:normal;">2025‑11‑16</small></h2>
+
+<blockquote>
+  <p><strong>文档加密功能</strong>：实现PDF和Word文档密码保护功能，PDF使用128位RC4加密，集成到导出服务，项目整体完成度提升至89.9%，P3可选功能完成率达到20%。</p>
+</blockquote>
+
+<h3>🐛 Bug修复</h3>
+<ul>
+  <li><strong>[文档加密]</strong> 修复Word加密实现错误
+    <ul>
+      <li>修复msoffcrypto-tool加密API使用错误（移除不必要的<code>load_key()</code>调用）</li>
+      <li><code>load_key()</code>是用于解密的，加密时应直接调用<code>encrypt()</code></li>
+      <li>更新<code>core/engine/encryptor.py</code>和<code>mvp/document_encryption.py</code></li>
+      <li>添加<code>mvp/test_decrypt.py</code>验证加密和解密功能</li>
+    </ul>
+  </li>
+  <li><strong>[文档]</strong> 更新FAQ说明PDF加密兼容性问题
+    <ul>
+      <li>说明RC4加密可能不被所有PDF阅读器支持</li>
+      <li>推荐使用Adobe Acrobat Reader打开加密的PDF</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[文档加密]</strong> 实现文档加密器（core/engine/encryptor.py）
+    <ul>
+      <li>新增 <code>DocumentEncryptor</code> 类：负责PDF和Word文档的加密</li>
+      <li>新增 <code>encrypt_pdf()</code> 方法：使用PyPDF2加密PDF文档
+        <ul>
+          <li>支持用户密码（user_password）和所有者密码（owner_password）</li>
+          <li>使用128位RC4加密算法</li>
+          <li>自动复制页面和元数据</li>
+        </ul>
+      </li>
+      <li>新增 <code>encrypt_word()</code> 方法：使用msoffcrypto-tool加密Word文档
+        <ul>
+          <li>支持密码保护Word文档（.docx格式）</li>
+          <li>保持文档格式和内容完整性</li>
+        </ul>
+      </li>
+      <li>新增 <code>encrypt_document()</code> 方法：根据格式自动选择加密方法</li>
+      <li>完善的错误处理和日志记录</li>
+    </ul>
+  </li>
+  <li><strong>[导出服务]</strong> 集成文档加密功能到导出服务（core/service/export_service.py）
+    <ul>
+      <li>在导出流程中添加加密步骤（渲染后、保存前）</li>
+      <li>支持通过 <code>ExportRequest.encrypt</code> 配置启用加密
+        <ul>
+          <li><code>enabled</code>: 是否启用加密（布尔值）</li>
+          <li><code>password</code>: 文档密码（必填）</li>
+          <li><code>owner_password</code>: PDF所有者密码（可选）</li>
+        </ul>
+      </li>
+      <li>异步执行加密操作，不阻塞主流程</li>
+      <li>更新任务状态进度（70%加密中）</li>
+      <li>完善的错误处理和任务失败记录</li>
+    </ul>
+  </li>
+  <li><strong>[MVP示例]</strong> 创建文档加密示例（mvp/document_encryption.py）
+    <ul>
+      <li>演示PDF加密功能（使用PyPDF2）</li>
+      <li>演示Word加密功能（使用msoffcrypto-tool）</li>
+      <li>生成加密前后的对比文档</li>
+      <li>提供验证说明和使用指南</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🧪 测试覆盖</h3>
+<ul>
+  <li><strong>[单元测试]</strong> 新增文档加密器测试（tests/test_encryptor.py）
+    <ul>
+      <li>测试PDF加密成功（<code>test_encrypt_pdf_success</code>）</li>
+      <li>测试PDF使用所有者密码加密（<code>test_encrypt_pdf_with_owner_password</code>）</li>
+      <li>测试PDF加密时密码为空（<code>test_encrypt_pdf_empty_password</code>）</li>
+      <li>测试PDF加密时数据无效（<code>test_encrypt_pdf_invalid_data</code>）</li>
+      <li>测试Word加密成功（<code>test_encrypt_word_success</code>）</li>
+      <li>测试Word加密时密码为空（<code>test_encrypt_word_empty_password</code>）</li>
+      <li>测试Word加密时数据无效（<code>test_encrypt_word_invalid_data</code>）</li>
+      <li>测试通用加密方法（<code>test_encrypt_document_pdf</code>、<code>test_encrypt_document_docx</code>）</li>
+      <li>测试不支持的格式（<code>test_encrypt_document_unsupported_format</code>）</li>
+      <li>测试额外参数传递（<code>test_encrypt_document_with_extra_params</code>）</li>
+      <li>共11个测试用例，全部通过</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📦 依赖更新</h3>
+<ul>
+  <li><strong>[新增依赖]</strong> PyPDF2==3.0.1 - 用于PDF文档加密</li>
+  <li><strong>[新增依赖]</strong> msoffcrypto-tool==5.4.2 - 用于Word文档加密</li>
+</ul>
+
+<h3>📚 文档更新</h3>
+<ul>
+  <li><strong>[能力矩阵]</strong> 更新文档加密功能状态
+    <ul>
+      <li>文档加密功能从"未开始"更新为"已完成"（100%）</li>
+      <li>安全与认证模块完成度从50%提升至62.5%</li>
+      <li>项目整体完成度从89.2%提升至89.9%</li>
+      <li>P3可选功能完成率从0%提升至20%</li>
+      <li>总体完成度从90.1%提升至90.8%</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🔧 技术细节</h3>
+<ul>
+  <li><strong>PDF加密实现</strong>：
+    <ul>
+      <li>使用PyPDF2库的PdfReader和PdfWriter</li>
+      <li>使用128位RC4加密算法（PyPDF2默认算法）</li>
+      <li>区分用户密码和所有者密码，提供精细权限控制</li>
+      <li>保持PDF元数据和页面结构完整性</li>
+    </ul>
+  </li>
+  <li><strong>Word加密实现</strong>：
+    <ul>
+      <li>使用msoffcrypto-tool库进行Office文档加密</li>
+      <li>支持.docx格式的密码保护</li>
+      <li>保持文档格式和样式完整性</li>
+    </ul>
+  </li>
+  <li><strong>集成设计</strong>：
+    <ul>
+      <li>在导出服务中无缝集成，不影响现有流程</li>
+      <li>通过配置参数灵活控制是否启用加密</li>
+      <li>异步执行加密操作，提高性能</li>
+      <li>完善的错误处理和任务状态跟踪</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📊 统计数据</h3>
+<ul>
+  <li>新增代码文件：3个（encryptor.py、document_encryption.py、test_encryptor.py）</li>
+  <li>修改代码文件：4个（__init__.py、export_service.py、能力矩阵.md、requirements.txt）</li>
+  <li>新增测试用例：11个</li>
+  <li>新增依赖库：2个</li>
+  <li>代码行数：约400行（含注释和文档）</li>
+</ul>
 
 <hr>
 

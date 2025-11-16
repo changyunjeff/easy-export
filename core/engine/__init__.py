@@ -18,6 +18,7 @@ from .filler import (
 from .chart import ChartGenerator
 from .image import ImageProcessor
 from .converter import Converter
+from .encryptor import DocumentEncryptor
 
 __all__ = [
     "TemplateEngine",
@@ -37,5 +38,6 @@ __all__ = [
     "ChartGenerator",
     "ImageProcessor",
     "Converter",
+    "DocumentEncryptor",
 ]
 

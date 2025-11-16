@@ -18,3 +18,5 @@ rocketmq-client-python==2.0.0
 Pillow==10.4.0
 matplotlib==3.9.2
 aiofiles==25.1.0
+PyPDF2==3.0.1
+msoffcrypto-tool==5.4.2

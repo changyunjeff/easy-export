@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
 from uuid import uuid4
 
-from core.engine import RendererFactory, TemplateEngine
+from core.engine import RendererFactory, TemplateEngine, DocumentEncryptor
 from core.models.export import ExportReport, ExportRequest, ExportResult
 from core.models.task import ExportTask, TaskStatus
 from core.storage import FileStorage, CacheStorage
@@ -58,6 +58,7 @@ class ExportService(AbstractExportService):
         stats_service: Optional[StatsService] = None,
         renderer_factory: type[RendererFactory] = RendererFactory,
         default_output_format: str = "html",
+        encryptor: Optional[DocumentEncryptor] = None,
     ) -> None:
         self._template_engine = template_engine or TemplateEngine()
         self._file_storage = file_storage or FileStorage()
@@ -65,6 +66,7 @@ class ExportService(AbstractExportService):
         self._stats_service = stats_service or StatsService(self._cache_storage)
         self._renderer_factory = renderer_factory
         self._default_output_format = default_output_format
+        self._encryptor = encryptor or DocumentEncryptor()
         logger.info("Export service initialized (default_format=%s)", default_output_format)
 
     async def export_document(
@@ -126,6 +128,41 @@ class ExportService(AbstractExportService):
             renderer = self._renderer_factory.get_renderer(target_format)
             renderer.ensure_template_supported(template)
             rendered_bytes = await asyncio.to_thread(renderer.render, template, request.data)
+
+            # 文档加密（如果启用）
+            if request.encrypt and request.encrypt.get("enabled", False):
+                password = request.encrypt.get("password")
+                if not password:
+                    raise ValueError("启用加密时必须提供密码")
+                
+                self._save_task_status(
+                    task_id=task_id,
+                    status=TaskStatus.PROCESSING,
+                    progress=70,
+                    message="正在加密文档"
+                )
+                
+                try:
+                    # 加密文档
+                    rendered_bytes = await asyncio.to_thread(
+                        self._encryptor.encrypt_document,
+                        rendered_bytes,
+                        password,
+                        target_format,
+                        **{k: v for k, v in request.encrypt.items() if k not in ("enabled", "password")}
+                    )
+                    logger.info("文档加密成功 (task_id=%s, format=%s)", task_id, target_format)
+                except Exception as e:
+                    error_msg = f"文档加密失败: {str(e)}"
+                    logger.error(error_msg, exc_info=True)
+                    self._save_task_status(
+                        task_id=task_id,
+                        status=TaskStatus.FAILED,
+                        progress=0,
+                        message=error_msg,
+                        error=error_msg
+                    )
+                    raise ValueError(error_msg) from e
 
             # 更新任务状态：saving
             self._save_task_status(

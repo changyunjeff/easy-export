@@ -17,6 +17,7 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.8">v0.1.8 — 2025-11-16</a></li>
     <li><a href="#v0.1.7">v0.1.7 — 2025-11-16</a></li>
     <li><a href="#v0.1.6">v0.1.6 — 2025-11-16</a></li>
     <li><a href="#v0.1.5">v0.1.5 — 2025-11-15</a></li>
@@ -27,6 +28,107 @@
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.8">v0.1.8 <small style="color:#888;font-weight:normal;">2025‑11‑16</small></h2>
+
+<blockquote>
+  <p><strong>批量处理优化与存储增强</strong>：实现批量任务分块处理功能，完成临时文件自动清理，项目整体完成度提升至89.2%，P1重要功能达到95.7%完成率。</p>
+</blockquote>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[批量处理]</strong> 实现批量任务分块处理功能（core/service/batch_service.py）
+    <ul>
+      <li>新增 <code>chunk_task_ids()</code> 方法：将任务ID列表分成多个块</li>
+      <li>新增 <code>process_batch_chunked()</code> 方法：分块处理批量任务，支持回调</li>
+      <li>新增 <code>get_chunk_info()</code> 方法：获取分块信息预估</li>
+      <li>默认分块大小：100个任务/块</li>
+      <li>最大分块大小：500个任务/块（防止内存溢出）</li>
+      <li>支持自定义分块大小和分块完成回调函数</li>
+      <li>提供内存使用预估（每块约~200MB）</li>
+    </ul>
+  </li>
+  <li><strong>[存储层]</strong> 确认临时文件清理功能已完整实现
+    <ul>
+      <li><code>FileStorage.cleanup_temp_files()</code>：清理早于指定时间的文件</li>
+      <li><code>FileService.cleanup_old_files()</code>：服务层清理接口</li>
+      <li><code>POST /api/v1/files/cleanup</code>：API清理接口</li>
+      <li>支持按天数清理过期文件</li>
+      <li>自动删除文件及其元数据</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>✅ 测试</h3>
+<ul>
+  <li><strong>[批量处理测试]</strong> 新增16个单元测试（tests/test_batch_service.py）
+    <ul>
+      <li>测试默认分块大小（100个任务）</li>
+      <li>测试自定义分块大小</li>
+      <li>测试小列表（少于chunk_size）</li>
+      <li>测试正好整除的情况</li>
+      <li>测试超过最大分块大小（限制为500）</li>
+      <li>测试无效分块大小（负数、0）</li>
+      <li>测试空列表分块</li>
+      <li>测试分块处理批量任务</li>
+      <li>测试带回调函数的分块处理</li>
+      <li>测试空批量任务的分块处理</li>
+      <li>测试批量任务不存在的情况</li>
+      <li>测试获取分块信息（默认/自定义大小）</li>
+      <li>测试正好整除的分块信息</li>
+      <li>测试超过最大分块大小的分块信息</li>
+      <li>测试无效的分块大小</li>
+      <li>全部16个测试通过✅</li>
+    </ul>
+  </li>
+  <li><strong>[存储层测试]</strong> 确认临时文件清理测试通过
+    <ul>
+      <li><code>test_cleanup_temp_files</code>：FileStorage清理测试通过</li>
+      <li><code>test_cleanup_old_files</code>：FileService清理测试通过</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📊 进度更新</h3>
+<ul>
+  <li><strong>[存储层]</strong> 进度从85.7%提升至<strong>100%</strong>（7/7）
+    <ul>
+      <li>✅ 临时文件清理功能已完成</li>
+    </ul>
+  </li>
+  <li><strong>[服务层]</strong> 进度从87.9%提升至<strong>93.9%</strong>（31/33）
+    <ul>
+      <li>✅ 批量处理服务达到100%（7/7）</li>
+      <li>✅ 分块处理功能已完成</li>
+    </ul>
+  </li>
+  <li><strong>[整体进度]</strong> 从87.8%提升至<strong>89.2%</strong>（132/148）
+    <ul>
+      <li>P0核心功能：<strong>100%</strong>（79/79）✅</li>
+      <li>P1重要功能：<strong>95.7%</strong>（45/47）⬆️</li>
+      <li>P2增强功能：47.6%（10/21）</li>
+      <li>P3可选功能：0%（0/5）</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🎯 功能亮点</h3>
+<ul>
+  <li><strong>大批量任务优化</strong>：支持将1000+任务分块处理，避免内存溢出</li>
+  <li><strong>灵活的分块策略</strong>：可自定义分块大小，自动限制最大值</li>
+  <li><strong>进度追踪</strong>：支持分块完成回调，实时追踪处理进度</li>
+  <li><strong>内存预估</strong>：提供分块信息预估，帮助规划资源</li>
+  <li><strong>自动清理</strong>：定期清理过期临时文件，节省磁盘空间</li>
+</ul>
+
+<h3>📝 代码统计</h3>
+<ul>
+  <li>新增代码：约350行（批量处理+测试）</li>
+  <li>测试覆盖：16个新增测试用例，全部通过</li>
+  <li>文档更新：能力矩阵、CHANGELOG</li>
+</ul>
 
 <hr>
 

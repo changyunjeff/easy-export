@@ -17,6 +17,7 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.10">v0.1.10 — 2025-11-16</a></li>
     <li><a href="#v0.1.9">v0.1.9 — 2025-11-16</a></li>
     <li><a href="#v0.1.8">v0.1.8 — 2025-11-16</a></li>
     <li><a href="#v0.1.7">v0.1.7 — 2025-11-16</a></li>
@@ -29,6 +30,95 @@
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.10">v0.1.10 <small style="color:#888;font-weight:normal;">2025‑11‑16</small></h2>
+
+<blockquote>
+  <p><strong>HTTPS/SSL支持</strong>：实现完整的HTTPS/SSL配置功能，包括SSL配置项、自签名证书生成工具、详细的配置指南和测试用例，项目整体完成度提升至90.7%，P1重要功能完成率达到95.9%。</p>
+</blockquote>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[安全]</strong> 实现HTTPS/SSL支持
+    <ul>
+      <li>添加<code>SSLConfig</code>配置类，支持证书路径、SSL版本、加密套件等配置</li>
+      <li>在<code>main.py</code>中集成SSL配置，支持启动HTTPS服务器</li>
+      <li>自动验证证书文件存在性，提供友好的错误提示</li>
+      <li>支持可选的SSL高级配置（CA证书、证书要求、SSL版本、加密套件）</li>
+    </ul>
+  </li>
+  <li><strong>[工具]</strong> 创建SSL证书生成工具
+    <ul>
+      <li>实现<code>script/generate_ssl_cert.py</code>自签名证书生成工具</li>
+      <li>支持自定义环境（dev/test/prod）、有效期、域名、组织信息</li>
+      <li>使用<code>cryptography</code>库生成2048位RSA密钥和SHA256签名证书</li>
+      <li>支持Subject Alternative Name (SAN)扩展，包含域名和IP地址</li>
+      <li>提供详细的命令行参数和使用示例</li>
+    </ul>
+  </li>
+  <li><strong>[配置]</strong> 更新所有环境配置文件
+    <ul>
+      <li>在<code>config.dev.yaml</code>、<code>config.test.yaml</code>、<code>config.prod.yaml</code>中添加SSL配置段</li>
+      <li>开发和测试环境默认禁用HTTPS，提供证书路径示例</li>
+      <li>生产环境配置中添加HTTPS启用建议和安全提示</li>
+    </ul>
+  </li>
+  <li><strong>[文档]</strong> 创建完整的HTTPS配置指南
+    <ul>
+      <li>创建<code>docs/HTTPS配置指南.md</code>，包含详细的配置说明</li>
+      <li>涵盖开发环境自签名证书配置、生产环境真实证书配置</li>
+      <li>提供Let's Encrypt免费证书获取指南和Nginx反向代理配置</li>
+      <li>包含故障排查、安全最佳实践、测试验证等完整内容</li>
+    </ul>
+  </li>
+  <li><strong>[测试]</strong> 添加HTTPS功能测试用例
+    <ul>
+      <li>创建<code>tests/test_https_support.py</code>，包含15个测试用例</li>
+      <li>测试SSL配置schema、配置加载、证书生成功能</li>
+      <li>测试uvicorn SSL配置、main.py SSL逻辑集成</li>
+      <li>测试配置文件SSL配置段、文档完整性验证</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🐛 Bug修复</h3>
+<ul>
+  <li><strong>[测试]</strong> 修复Windows平台路径反斜杠转义问题
+    <ul>
+      <li>修复<code>test_ssl_config_in_yaml</code>测试中YAML字符串路径转义问题</li>
+      <li>使用正斜杠替换Windows路径反斜杠，避免YAML解析错误</li>
+      <li>确保测试在Windows和Linux平台均可正常运行</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📊 进度更新</h3>
+<ul>
+  <li><strong>安全与认证</strong>：6/8 (75%) - HTTPS支持已完成</li>
+  <li><strong>测试</strong>：6/8 (75%) - 新增HTTPS支持测试，共223个测试用例</li>
+  <li><strong>文档</strong>：6/8 (75%) - 新增HTTPS配置指南</li>
+  <li><strong>总体进度</strong>：137/151 (90.7%) - 新增4个能力项，完成3个</li>
+  <li><strong>P1重要功能</strong>：47/49 (95.9%) - HTTPS支持完成</li>
+</ul>
+
+<h3>🔒 安全增强</h3>
+<ul>
+  <li>支持TLS 1.2+协议版本</li>
+  <li>支持自定义加密套件配置</li>
+  <li>支持双向TLS（mTLS）认证</li>
+  <li>证书文件存在性验证</li>
+  <li>详细的安全最佳实践文档</li>
+</ul>
+
+<h3>📖 文档改进</h3>
+<ul>
+  <li>创建完整的HTTPS配置指南（70+ KB）</li>
+  <li>包含开发环境配置、生产环境配置、故障排查等9个章节</li>
+  <li>提供详细的命令行示例和配置示例</li>
+  <li>包含SSL/TLS测试工具和在线测试服务推荐</li>
+</ul>
 
 <hr>
 

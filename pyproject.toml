@@ -31,6 +31,7 @@ dependencies = [
 
 [project.scripts]
 compelog = "script.compress_logs:main"
+ssl = "script.generate_ssl_cert:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

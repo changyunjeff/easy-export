@@ -264,12 +264,59 @@ if __name__ == "__main__":
         setup_logging(getattr(cfg, "logging", None))
     except Exception:
         pass
-    uvicorn.run(
-        "main:create_app",
-        host=cfg.app.host,
-        port=cfg.app.port,
-        reload=is_debug(cfg.app.mode), # based on mode, if in dev mode, reload
-        factory=True,
-        workers=worker_count(),         # will not work in dev mode
-        log_config=None,  # 禁用 uvicorn 的默认日志配置，使用我们自己的日志配置
-    )
+    
+    # 准备uvicorn配置
+    uvicorn_config = {
+        "app": "main:create_app",
+        "host": cfg.app.host,
+        "port": cfg.app.port,
+        "reload": is_debug(cfg.app.mode),  # based on mode, if in dev mode, reload
+        "factory": True,
+        "workers": worker_count(),  # will not work in dev mode
+        "log_config": None,  # 禁用 uvicorn 的默认日志配置，使用我们自己的日志配置
+    }
+    
+    # 如果启用了SSL，添加SSL配置
+    ssl_config = getattr(cfg, "ssl", None)
+    if ssl_config and getattr(ssl_config, "enabled", False):
+        logger = logging.getLogger(__name__)
+        logger.info("🔒 HTTPS已启用")
+        
+        # 验证证书文件是否存在
+        certfile = ssl_config.certfile
+        keyfile = ssl_config.keyfile
+        
+        if not certfile or not os.path.exists(certfile):
+            logger.error(f"❌ SSL证书文件不存在: {certfile}")
+            logger.error("请运行: python script/generate_ssl_cert.py --env dev")
+            sys.exit(1)
+        
+        if not keyfile or not os.path.exists(keyfile):
+            logger.error(f"❌ SSL私钥文件不存在: {keyfile}")
+            logger.error("请运行: python script/generate_ssl_cert.py --env dev")
+            sys.exit(1)
+        
+        logger.info(f"   证书文件: {certfile}")
+        logger.info(f"   私钥文件: {keyfile}")
+        
+        uvicorn_config["ssl_keyfile"] = keyfile
+        uvicorn_config["ssl_certfile"] = certfile
+        
+        # 可选的SSL配置
+        if ssl_config.ca_certs:
+            uvicorn_config["ssl_ca_certs"] = ssl_config.ca_certs
+        if ssl_config.cert_reqs is not None:
+            uvicorn_config["ssl_cert_reqs"] = ssl_config.cert_reqs
+        if ssl_config.ssl_version is not None:
+            uvicorn_config["ssl_version"] = ssl_config.ssl_version
+        if ssl_config.ciphers:
+            uvicorn_config["ssl_ciphers"] = ssl_config.ciphers
+        
+        logger.info(f"   访问地址: https://{cfg.app.host}:{cfg.app.port}")
+        if cfg.app.host == "0.0.0.0":
+            logger.info(f"   本地访问: https://localhost:{cfg.app.port}")
+    else:
+        logger = logging.getLogger(__name__)
+        logger.info(f"   访问地址: http://{cfg.app.host}:{cfg.app.port}")
+    
+    uvicorn.run(**uvicorn_config)

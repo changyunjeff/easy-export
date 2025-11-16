@@ -101,3 +101,13 @@ class RocketMQConfig(BaseModel):
     secret_key: Optional[str] = Field(default=None, description="Secret key for authentication")
     security_token: Optional[str] = Field(default=None, description="Security token for authentication")
     namespace: Optional[str] = Field(default=None, description="Namespace for message isolation")
+
+
+class SSLConfig(BaseModel):
+    enabled: bool = Field(default=False, description="Enable HTTPS/SSL support")
+    certfile: Optional[str] = Field(default=None, description="Path to SSL certificate file (PEM format)")
+    keyfile: Optional[str] = Field(default=None, description="Path to SSL private key file (PEM format)")
+    ca_certs: Optional[str] = Field(default=None, description="Path to CA certificates file (optional)")
+    cert_reqs: int = Field(default=0, description="Certificate requirements: 0=CERT_NONE, 1=CERT_OPTIONAL, 2=CERT_REQUIRED")
+    ssl_version: Optional[int] = Field(default=None, description="SSL protocol version (None=automatic)")
+    ciphers: Optional[str] = Field(default=None, description="Allowed SSL ciphers (None=default)")

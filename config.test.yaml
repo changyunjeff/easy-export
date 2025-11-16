@@ -80,3 +80,12 @@ ddos_protection:
     - "192.168.1.200"           # 测试黑名单IP
   key_prefix: "test_ddos_protection" # Redis键前缀（测试专用）
   enable_auto_blacklist: true   # 是否自动将超过阈值的IP加入黑名单
+
+ssl:
+  enabled: false                        # 测试环境默认禁用HTTPS
+  certfile: "certs/test-cert.pem"       # SSL证书文件路径（如启用）
+  keyfile: "certs/test-key.pem"         # SSL私钥文件路径（如启用）
+  ca_certs: null                        # CA证书文件路径（可选）
+  cert_reqs: 0                          # 证书要求：0=不要求，1=可选，2=必需
+  ssl_version: null                     # SSL协议版本（null=自动选择）
+  ciphers: null                         # 允许的加密套件（null=默认）

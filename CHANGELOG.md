@@ -5,7 +5,7 @@
       <img alt="version" src="https://img.shields.io/badge/version-v0.1.0-blue?style=flat-square">
     </a>
     <img alt="stage" src="https://img.shields.io/badge/stage-alpha-orange?style=flat-square">
-    <img alt="license" src="https://img.shields.io/badge/license-Apache%202.0-lightgrey?style=flat-square">
+    <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square">
   </p>
   <p style="margin-top:8px;color:#666;">
     快速将模板导出为多种格式
@@ -17,6 +17,7 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.11">v0.1.11 — 2025-11-16</a></li>
     <li><a href="#v0.1.10">v0.1.10 — 2025-11-16</a></li>
     <li><a href="#v0.1.9">v0.1.9 — 2025-11-16</a></li>
     <li><a href="#v0.1.8">v0.1.8 — 2025-11-16</a></li>
@@ -30,6 +31,68 @@
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.11">v0.1.11 <small style="color:#888;font-weight:normal;">2025‑11‑16</small></h2>
+
+<blockquote>
+  <p><strong>MIT许可证</strong>：为项目添加MIT开源许可证，明确项目的开源授权条款。</p>
+</blockquote>
+
+<h3>📄 文档</h3>
+<ul>
+  <li><strong>[许可证]</strong> 添加MIT许可证文件
+    <ul>
+      <li>创建<code>LICENSE</code>文件，包含标准MIT许可证文本</li>
+      <li>版权归属：Chang Yun Jeff，年份2025</li>
+      <li>授予用户自由使用、修改、分发软件的权利</li>
+      <li>包含标准的免责声明和版权声明要求</li>
+    </ul>
+  </li>
+  <li><strong>[CHANGELOG]</strong> 更新CHANGELOG.md许可证徽章
+    <ul>
+      <li>将许可证徽章从"Apache 2.0"更新为"MIT"</li>
+      <li>新增v0.1.11版本记录</li>
+    </ul>
+  </li>
+  <li><strong>[README]</strong> README.md已包含MIT许可证说明
+    <ul>
+      <li>第9行徽章显示MIT License</li>
+      <li>第1110-1112行包含许可证章节说明</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📌 许可证说明</h3>
+<ul>
+  <li><strong>许可证类型</strong>：MIT License</li>
+  <li><strong>版权所有者</strong>：Chang Yun Jeff</li>
+  <li><strong>年份</strong>：2025</li>
+  <li><strong>主要权限</strong>：
+    <ul>
+      <li>✅ 商业使用</li>
+      <li>✅ 修改</li>
+      <li>✅ 分发</li>
+      <li>✅ 私人使用</li>
+      <li>✅ 专利使用（间接）</li>
+    </ul>
+  </li>
+  <li><strong>主要限制</strong>：
+    <ul>
+      <li>⚠️ 必须包含版权声明和许可证声明</li>
+      <li>⚠️ 软件按"原样"提供，不提供任何明示或暗示的担保</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🎯 意义</h3>
+<ul>
+  <li>✅ 明确项目的开源授权条款，便于用户和贡献者理解权利义务</li>
+  <li>✅ MIT许可证是最宽松的开源许可证之一，有利于项目推广和使用</li>
+  <li>✅ 保护原作者的版权，同时允许最大程度的自由使用</li>
+  <li>✅ 符合开源社区的最佳实践，提升项目的专业性</li>
+</ul>
 
 <hr>
 

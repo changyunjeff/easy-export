@@ -17,6 +17,7 @@
 <details open>
   <summary><strong>目录</strong></summary>
   <ul>
+    <li><a href="#v0.1.7">v0.1.7 — 2025-11-16</a></li>
     <li><a href="#v0.1.6">v0.1.6 — 2025-11-16</a></li>
     <li><a href="#v0.1.5">v0.1.5 — 2025-11-15</a></li>
     <li><a href="#v0.1.4">v0.1.4 — 2025-11-15</a></li>
@@ -26,6 +27,156 @@
     <li><a href="#v0.1.0">v0.1.0 — 2025-11-14</a></li>
   </ul>
 </details>
+
+<hr>
+
+<h2 id="v0.1.7">v0.1.7 <small style="color:#888;font-weight:normal;">2025‑11‑16</small></h2>
+
+<blockquote>
+  <p><strong>API文档完善</strong>：实现完整的OpenAPI文档配置，创建详细的API使用指南，项目整体完成度提升至87.8%，P0核心功能保持100%完成。</p>
+</blockquote>
+
+<h3>✨ 新增功能</h3>
+<ul>
+  <li><strong>[API文档]</strong> 实现完整的OpenAPI文档配置（core/api_docs.py）
+    <ul>
+      <li>配置详细的API描述和快速开始指南</li>
+      <li>定义7个API标签分组（模板、导出、校验、统计、文件、队列、健康检查）</li>
+      <li>配置Swagger UI参数（深度链接、请求时长显示、过滤器等）</li>
+      <li>定义API示例数据（导出请求、批量导出、模板创建、文档校验等）</li>
+      <li>支持Swagger UI、ReDoc、OpenAPI JSON三种文档访问方式</li>
+    </ul>
+  </li>
+  <li><strong>[API文档]</strong> 更新main.py集成API文档配置
+    <ul>
+      <li>自动加载OpenAPI配置（标题、描述、版本、联系方式、许可证）</li>
+      <li>配置Swagger UI参数和标签分组</li>
+      <li>提供配置加载失败时的回退机制</li>
+    </ul>
+  </li>
+  <li><strong>[API示例]</strong> 为ExportRequest模型添加详细示例
+    <ul>
+      <li>为每个字段添加示例值（data、template_ref、output_format等）</li>
+      <li>添加两个完整的请求示例（基础导出、包含表格的导出）</li>
+      <li>使用Pydantic v2的model_config配置示例</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📚 文档</h3>
+<ul>
+  <li><strong>[使用指南]</strong> 创建完整的API使用指南（docs/API使用指南.md）
+    <ul>
+      <li>API文档访问方式（Swagger UI、ReDoc、OpenAPI JSON）</li>
+      <li>快速开始指南（启动服务、健康检查）</li>
+      <li>模板管理完整示例（上传、查询、下载、版本管理、删除）</li>
+      <li>文档导出示例（基础导出、表格导出、图表导出、任务查询、文件下载）</li>
+      <li>批量导出示例（批量任务创建、状态查询）</li>
+      <li>文档校验示例（完整性检查、链接验证）</li>
+      <li>统计查询示例（导出统计、性能统计、模板使用统计）</li>
+      <li>队列监控示例（队列状态、健康检查、性能指标）</li>
+      <li>占位符语法详解（文本、表格、图片、图表）</li>
+      <li>错误处理和常见错误码说明</li>
+      <li>性能优化建议和安全建议</li>
+      <li>Python SDK示例代码</li>
+    </ul>
+  </li>
+  <li><strong>[API文档配置]</strong> core/api_docs.py提供可复用的文档配置
+    <ul>
+      <li>OPENAPI_CONFIG：基础OpenAPI配置</li>
+      <li>OPENAPI_TAGS：API标签分组配置</li>
+      <li>SWAGGER_UI_PARAMETERS：Swagger UI自定义参数</li>
+      <li>API_EXAMPLES：各API端点的示例数据</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>✅ 测试</h3>
+<ul>
+  <li><strong>[API文档测试]</strong> 创建API文档功能测试（tests/test_api_docs.py）
+    <ul>
+      <li>测试OpenAPI JSON端点（基础信息、info部分、标题描述）</li>
+      <li>测试Swagger UI和ReDoc页面可访问性</li>
+      <li>测试API标签分组定义</li>
+      <li>测试API路径定义（关键端点存在性）</li>
+      <li>测试数据模型schemas定义</li>
+      <li>测试API端点文档完整性</li>
+      <li>测试各主要端点在文档中的存在性（health、export、template）</li>
+      <li>测试响应模型和请求体定义</li>
+      <li>测试版本信息和联系信息</li>
+      <li>共20个测试用例，全面覆盖API文档功能</li>
+    </ul>
+  </li>
+  <li><strong>[验证脚本]</strong> 创建API文档验证脚本（tests/verify_api_docs.py）
+    <ul>
+      <li>验证应用信息（标题、描述、版本、URL）</li>
+      <li>验证OpenAPI标签配置</li>
+      <li>验证Swagger UI参数</li>
+      <li>统计路由信息</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>📊 进度更新</h3>
+<ul>
+  <li><strong>[能力矩阵]</strong> 更新文档模块和整体进度
+    <ul>
+      <li>API文档：P0，从"未开始"更新为"已完成"</li>
+      <li>使用示例：P1，从"未开始"更新为"已完成"</li>
+      <li>文档进度：从2/6(33.3%)提升至4/6(66.7%)，实际完成5/7(71.4%)</li>
+      <li>整体完成度：从128/148(86.5%)提升至130/148(87.8%)</li>
+      <li>P0核心功能：保持79/79(100%)完成</li>
+      <li>P1重要功能：从42/47(89.4%)提升至43/47(91.5%)</li>
+      <li>总优先级完成率：从133/151(88.1%)提升至135/152(88.8%)</li>
+      <li>能力矩阵版本：v2.0 → v2.1</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🎯 功能亮点</h3>
+<ul>
+  <li>✅ P0核心功能API文档完成，支持Swagger UI、ReDoc、OpenAPI JSON三种访问方式</li>
+  <li>✅ 创建完整的API使用指南，包含curl和Python SDK示例</li>
+  <li>✅ API文档包含详细的描述、示例、标签分组和错误码说明</li>
+  <li>✅ 项目整体完成度87.8%，距离MVP目标（90%）仅差2.2%</li>
+  <li>✅ P0核心功能100%完成，P1重要功能91.5%完成</li>
+</ul>
+
+<h3>📌 技术细节</h3>
+<ul>
+  <li><strong>OpenAPI配置</strong>：
+    <ul>
+      <li>使用FastAPI原生OpenAPI支持，自动生成文档</li>
+      <li>自定义Swagger UI参数（深度链接、语法高亮、持久化认证等）</li>
+      <li>7个API标签分组，便于快速查找相关接口</li>
+      <li>详细的API描述，包含快速开始、技术特性、占位符语法等</li>
+    </ul>
+  </li>
+  <li><strong>示例数据</strong>：
+    <ul>
+      <li>导出请求示例（基础、表格、图表、批量）</li>
+      <li>模板创建示例</li>
+      <li>文档校验示例</li>
+      <li>使用Pydantic model_config添加模型级别的示例</li>
+    </ul>
+  </li>
+  <li><strong>使用指南</strong>：
+    <ul>
+      <li>覆盖所有主要API端点的使用示例</li>
+      <li>提供curl和Python SDK两种调用方式</li>
+      <li>包含占位符语法、错误处理、性能优化等最佳实践</li>
+      <li>约500行详细文档，满足开发者快速上手需求</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>🔄 下一步计划</h3>
+<ul>
+  <li>完成集成指南文档（P1）</li>
+  <li>完成部署文档（P1）</li>
+  <li>完善测试覆盖（性能测试、代码覆盖率统计）</li>
+  <li>项目整体完成度达到90%以上</li>
+</ul>
 
 <hr>
 

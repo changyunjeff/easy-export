@@ -161,18 +161,39 @@ def create_app() -> FastAPI:
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
-    contact_payload = None
-    if getattr(config.app, "contact", None):
-        if isinstance(config.app.contact, str):
-            contact_payload = {"email": config.app.contact}
-        elif isinstance(config.app.contact, dict):
-            contact_payload = config.app.contact
+    # 导入API文档配置
+    try:
+        from core.api_docs import get_openapi_schema_config
+        api_docs_config = get_openapi_schema_config()
+    except Exception as e:
+        logger.warning(f"Failed to load API docs config: {e}, using basic config")
+        # 回退到基础配置
+        contact_payload = None
+        if getattr(config.app, "contact", None):
+            if isinstance(config.app.contact, str):
+                contact_payload = {"email": config.app.contact}
+            elif isinstance(config.app.contact, dict):
+                contact_payload = config.app.contact
+        
+        api_docs_config = {
+            "title": config.app.title,
+            "description": config.app.description,
+            "version": config.app.version,
+            "contact": contact_payload,
+        }
 
     app = FastAPI(
-        title=config.app.title,
-        description=config.app.description,
-        version=config.app.version,
-        contact=contact_payload,
+        title=api_docs_config.get("title", config.app.title),
+        description=api_docs_config.get("description", config.app.description),
+        version=api_docs_config.get("version", config.app.version),
+        contact=api_docs_config.get("contact"),
+        license_info=api_docs_config.get("license_info"),
+        terms_of_service=api_docs_config.get("terms_of_service"),
+        openapi_tags=api_docs_config.get("openapi_tags"),
+        docs_url=api_docs_config.get("docs_url", "/docs"),
+        redoc_url=api_docs_config.get("redoc_url", "/redoc"),
+        openapi_url=api_docs_config.get("openapi_url", "/openapi.json"),
+        swagger_ui_parameters=api_docs_config.get("swagger_ui_parameters"),
         lifespan=lifespan,  # 使用生命周期钩子
     )
 
